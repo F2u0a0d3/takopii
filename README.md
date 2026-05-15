@@ -38,6 +38,20 @@
 | **dropper** | WiFi Analyzer Pro | `254465...9ee7ed` | **0/66** | [View on VT](https://www.virustotal.com/gui/file/254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed) |
 | **stage-1-evasion** | SkyWeather Forecast | `af5ceb...01612` | **0/66** | [View on VT](https://www.virustotal.com/gui/file/af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612) |
 
+#### sms-stealer — 0/66 (Battery Boost Pro, 1.59 MB)
+![sms-stealer VT scan](assets/vt-screenshots/sms-stealer-vt.png)
+
+#### dropper — 0/66 (WiFi Analyzer Pro, 1.60 MB)
+![dropper VT scan](assets/vt-screenshots/dropper-vt.png)
+
+#### overlay-banker — 0/66 (Doc Reader Lite, 1.79 MB)
+![overlay-banker VT scan](assets/vt-screenshots/overlay-banker-vt.png)
+
+> Zenbox sandbox flags: `MALWARE ADWARE TROJAN EVADER` + Suricata `LOW 1` — yet 0/66 static AV engines detect nothing.
+
+#### stage-1-evasion — 0/66 (SkyWeather Forecast, 1.66 MB)
+![stage-1-evasion VT scan](assets/vt-screenshots/stage-1-evasion-vt.png)
+
 **Full SHA256 hashes:**
 ```
 sms-stealer:      32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243
@@ -46,7 +60,7 @@ dropper:          254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7
 stage-1-evasion:  af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612
 ```
 
-> Scanned 2026-05-14. Overlay-banker flagged by Zenbox sandbox as "MALWARE ADWARE TROJAN EVADER" + Suricata LOW severity 1 — static AV engines still score 0/66. Click "View on VT" links above to verify live.
+> Scanned 2026-05-14. Click "View on VT" links above to verify live scores.
 
 </details>
 
