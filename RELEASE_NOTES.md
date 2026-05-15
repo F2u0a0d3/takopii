@@ -2,7 +2,7 @@
 
 **Version:** v0.1.0
 **Date:** 2026-05-14
-**Headline:** 4 Android Banker Specimens -- 0/75 VirusTotal
+**Headline:** 4 Android Banker Specimens -- 0/66 VirusTotal
 
 ---
 
@@ -10,7 +10,7 @@
 
 First public release of the Takopii framework. Four Android banker malware specimens implementing techniques from 17 documented real-world families, paired with 107 detection rules and 10,400+ lines of red/blue/purple analysis documentation.
 
-Specimens score **0/75 on VirusTotal** -- all four confirmed clean across 75 AV engines (2026-05-14). Every attack ships with matching detection.
+Specimens score **0/66 on VirusTotal** -- all four confirmed clean across 66 AV engines (2026-05-14). Every attack ships with matching detection.
 
 ---
 
@@ -24,7 +24,7 @@ Four specimen APKs with distinct camouflage identities. Each builds from source 
 - **SHA256:** `32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243`
 - **Size:** 1.62 MB
 - **Kotlin files:** 53
-- **VT score:** **0/75** ✓
+- **VT score:** **0/66** ✓
 - **Techniques:** SMS intercept, OTP extraction (3 regex patterns), ContentResolver-based SMS read
 - **Family coverage:** FluBot, SharkBot V1
 
@@ -34,7 +34,7 @@ Four specimen APKs with distinct camouflage identities. Each builds from source 
 - **SHA256:** `33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0`
 - **Size:** 1.84 MB
 - **Kotlin files:** 55
-- **VT score:** **0/75** ✓
+- **VT score:** **0/66** ✓
 - **Techniques:** 55 modules -- AccessibilityService abuse, TYPE_ACCESSIBILITY_OVERLAY (2032), NLS + SMS dual OTP capture, DGA (MD5+Calendar), 4-stage modular loader, hidden VNC (MediaProjection), Yamux multiplexed C2, SOCKS5 residential proxy, NFC ghost-tap relay, SSO hijack + MFA auto-approve, TEE/TrustZone offload, per-build AI obfuscation, behavior mimicry, BIP39 seed scrape, SMS worm, anti-debug (3-layer), anti-emulator (14-check), anti-Frida (5-vector), native JNI protection, XOR+AES string encryption, reflection API hiding, ContentProvider pre-init, WorkManager beacon, MediaProjection auto-consent, Play Integrity recon, **silent camera capture (front+rear)**, **ambient audio recording (chunked upload)**, **screen streaming (WebSocket VNC)**, **TOTP authenticator capture (Crocodilus)**, **touch/keylogging (PIN extraction)**, **call forwarding + USSD exec**, **notification suppression (fraud alerts)**, **black screen overlay (RAT masking)**, **contact injection/replacement**, **remote shell + device recon**, **app management (AV removal, Play Protect disable)**, **geolocation tracking**, **factory reset (BRATA pattern)**
 - **Family coverage:** Anatsa, SharkBot, Klopatra, Mirax, Vespertine, Drelock, Apex, RatOn, Perseus, FluBot, Herodotus, **Crocodilus, Brokewell, FakeCall, TrickMo, ToxicPanda, Cerberus**
 
@@ -44,7 +44,7 @@ Four specimen APKs with distinct camouflage identities. Each builds from source 
 - **SHA256:** `254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed`
 - **Size:** 1.60 MB
 - **Kotlin files:** 50
-- **VT score:** 0/75 ✓
+- **VT score:** 0/66 ✓
 - **Techniques:** Stage-0 dormancy (72h timer), config retrieval, DexClassLoader payload delivery, foreground service persistence
 - **Family coverage:** Anatsa V4
 
@@ -54,7 +54,7 @@ Four specimen APKs with distinct camouflage identities. Each builds from source 
 - **SHA256:** `af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612`
 - **Size:** 1.70 MB
 - **Kotlin files:** 42
-- **VT score:** **0/75** ✓
+- **VT score:** **0/66** ✓
 - **Techniques:** Full 5-stage kill chain -- anti-debug/emulator/Frida evasion battery, ATS automated transfer system, DGA fallback, DexClassLoader + anti-forensic deletion, AccessibilityService-driven UI automation, overlay rendering, OTP dual-path capture, WorkManager beacon, credential store, gesture injection
 - **Family coverage:** Anatsa + SharkBot composite
 
@@ -71,7 +71,7 @@ Four specimen APKs with distinct camouflage identities. Each builds from source 
 | Kotlin source files | 200 |
 | Stealer modules (overlay-banker) | 55 |
 | Families covered | 17 |
-| VirusTotal score (all specimens) | **0/75** (all 4 confirmed clean, 2026-05-14) |
+| VirusTotal score (all specimens) | **0/66** (all 4 confirmed clean, 2026-05-14) |
 | Detection rules (YARA + Sigma + Frida) | 95 (24 + 34 + 37) |
 
 ---
@@ -154,7 +154,7 @@ frida -U -l detection/frida/master-monitor.js -f com.docreader.lite
 |---|---|---|---|
 | `REDTEAM-ANALYSIS.md` | 4,025 | Offense | Kill chain architecture for all 4 specimens, annotated source walkthrough for 187 .kt files, evasion layer design, C2 protocol documentation, technique-to-family attribution |
 | `BLUETEAM-DETECTION.md` | 5,457 | Defense | IOC catalog, all 107 detection rules with rationale and false-positive analysis, network signatures (JA3/JA4, DGA precomputation), forensic commands, MobSF integration |
-| `VT-EVASION-RESEARCH.md` | 949 | Research | 11-round VirusTotal classifier defeat journal, build-artifact topology theory, methodology for maintaining 0/75 across source-level changes |
+| `VT-EVASION-RESEARCH.md` | 949 | Research | 11-round VirusTotal classifier defeat journal, build-artifact topology theory, methodology for maintaining 0/66 across source-level changes |
 
 ---
 
@@ -244,14 +244,14 @@ frida -U -l detection/frida/master-monitor.js -f com.docreader.lite
 
 ## VirusTotal Results (2026-05-14)
 
-All 4 specimens confirmed **0/75** after iterative evasion engineering.
+All 4 specimens confirmed **0/66** after iterative evasion engineering.
 
 | Specimen | Score | Flagged By | Notes |
 |---|---|---|---|
-| sms-stealer | **0/75** ✓ | -- | Evasion: `proguard-android-optimize.txt` + benign dependency weight + obfuscation dictionary |
-| overlay-banker | **0/75** ✓ | -- | Evasion: RAT permission stripping + native code removal + benign dependency weight |
-| dropper | **0/75** ✓ | -- | Clean from initial build (no changes required) |
-| stage-1-evasion | **0/75** ✓ | -- | Evasion: weather-themed class renames for manifest-bound components |
+| sms-stealer | **0/66** ✓ | -- | Evasion: `proguard-android-optimize.txt` + benign dependency weight + obfuscation dictionary |
+| overlay-banker | **0/66** ✓ | -- | Evasion: RAT permission stripping + native code removal + benign dependency weight |
+| dropper | **0/66** ✓ | -- | Clean from initial build (no changes required) |
+| stage-1-evasion | **0/66** ✓ | -- | Evasion: weather-themed class renames for manifest-bound components |
 
 ### Evasion Methodology Summary
 

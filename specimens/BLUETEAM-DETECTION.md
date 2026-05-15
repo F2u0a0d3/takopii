@@ -5204,7 +5204,7 @@ Priority 3 is what ML classifiers primarily use. It is the weakest layer. See [`
 
 ## What VirusTotal Missed (And Why)
 
-All 4 specimens at 0/75 despite:
+All 4 specimens at 0/66 despite:
 - Active SMS reading via ContentResolver
 - HTTP POST exfiltration to C2
 - Foreground service persistence

@@ -35,7 +35,7 @@
 
 **Package:** `com.cleanmaster.battery`
 **APK Size:** 1.70 MB (1,700,796 bytes)
-**VT Score:** 0/75
+**VT Score:** 0/66
 **SHA256:** `32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243`
 
 ### Kill Chain
@@ -275,7 +275,7 @@ Device fingerprint payload (cat=dev):
 
 **Package:** `com.wifianalyzer.pro`
 **APK Size:** 1.68 MB (1,679,688 bytes)
-**VT Score:** 0/75
+**VT Score:** 0/66
 **SHA256:** `254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed`
 
 ### Kill Chain
@@ -776,7 +776,7 @@ frida -U -f com.skyweather.forecast -l specimens/stage-1-evasion/scripts/dga-liv
 
 **Package:** `com.docreader.lite`
 **APK Size:** 1.84 MB (1,879,623 bytes)
-**VT Score:** 0/75
+**VT Score:** 0/66
 **SHA256:** `33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0`
 
 ### Kill Chain (Multi-Stage)
@@ -968,12 +968,12 @@ fun flush() {
         put("batch", JSONArray(batch))
         put("ts", System.currentTimeMillis())
     }
-    // OkHttp POST — overlay-banker still uses OkHttp (was already 0/75)
+    // OkHttp POST — overlay-banker still uses OkHttp (was already 0/66)
     // Re-queue on failure for retry on next flush cycle
 }
 ```
 
-Note: Overlay-banker **still uses OkHttp** — it achieved 0/75 before rounds 3-10. Only sms-stealer and dropper needed the OkHttp removal to defeat BitDefenderFalx. This is documented in [`VT-EVASION-RESEARCH.md`](VT-EVASION-RESEARCH.md).
+Note: Overlay-banker **still uses OkHttp** — it achieved 0/66 before rounds 3-10. Only sms-stealer and dropper needed the OkHttp removal to defeat BitDefenderFalx. This is documented in [`VT-EVASION-RESEARCH.md`](VT-EVASION-RESEARCH.md).
 
 ### C2 Protocol — Full Command Channel
 
@@ -2644,7 +2644,7 @@ Total offensive:       43 .kt files
 
 **Package:** `com.skyweather.forecast`
 **APK Size:** 1.74 MB (1,741,865 bytes)
-**VT Score:** 0/75
+**VT Score:** 0/66
 **SHA256:** `af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612`
 
 ### Kill Chain (5-Stage Capstone)
@@ -3830,7 +3830,7 @@ Each specimen builds on the previous. SMS-stealer teaches data collection + exfi
 
 ## VT Evasion Summary
 
-All 4 specimens achieved 0/75 VirusTotal. The decisive evasion was not code-level — it was build-pipeline:
+All 4 specimens achieved 0/66 VirusTotal. The decisive evasion was not code-level — it was build-pipeline:
 
 1. **No third-party HTTP library** — `HttpURLConnection` over OkHttp
 2. **No custom obfuscation dictionary** — default R8 sequential renaming

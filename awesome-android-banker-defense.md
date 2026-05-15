@@ -232,7 +232,7 @@ RASP protects the banking app from instrumentation and tampering. MTD protects t
 
 ### Projects
 
-- [Takopii](https://github.com/F2u0a0d3/takopii) - **This project.** 4 banker specimens (0/75 VT), 107 detection rules, 10,400+ lines of analysis. Hub-and-spoke curriculum covering 17 real-world banker families.
+- [Takopii](https://github.com/F2u0a0d3/takopii) - **This project.** 4 banker specimens (0/66 VT), 107 detection rules, 10,400+ lines of analysis. Hub-and-spoke curriculum covering 17 real-world banker families.
 - [learning-malware-analysis](https://github.com/RPISEC/Malware) - RPISEC Malware Analysis course materials. General malware fundamentals applicable to mobile.
 - [android-security-awesome](https://github.com/nicholaschum/allsafe) - Curated list of Android security resources, tools, and papers.
 - [Mobile Security Wiki](https://mobilesecuritywiki.com/) - Community wiki covering mobile security tools, techniques, and resources.

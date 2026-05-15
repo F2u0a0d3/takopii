@@ -1,10 +1,10 @@
 # Takopii
 
-### 4 Android Banker Specimens. 0/75 VirusTotal. Full Kotlin Source.
+### 4 Android Banker Specimens. 0/66 VirusTotal. Full Kotlin Source.
 
 > Production-grade banker malware architecture — techniques from 17 real-world families — with matching detection rules. Zero family attribution from any AV engine.
 
-[![VT Score](https://img.shields.io/badge/VirusTotal-0%2F75-brightgreen?style=for-the-badge&logo=virustotal)](specimens/)
+[![VT Score](https://img.shields.io/badge/VirusTotal-0%2F66-brightgreen?style=for-the-badge&logo=virustotal)](specimens/)
 [![Specimens](https://img.shields.io/badge/Specimens-4%20APKs-blue?style=for-the-badge)](specimens/)
 [![Kotlin](https://img.shields.io/badge/Kotlin-200%20files-7F52FF?style=for-the-badge&logo=kotlin)](specimens/)
 [![Families](https://img.shields.io/badge/Families-17%20real--world-red?style=for-the-badge)](specimens/)
@@ -19,12 +19,40 @@
 
 | # | Specimen | Camouflage | Techniques | VT | Families |
 |:-:|---|---|---|:-:|---|
-| 1 | **sms-stealer** | CleanMaster Battery | SMS intercept, OTP extraction | **0/75** | FluBot, SharkBot V1 |
-| 2 | **overlay-banker** | Doc Reader Lite | 55 modules, 17 family techniques | **0/75** | Anatsa, SharkBot, Klopatra, Mirax, Vespertine, Drelock, Apex, RatOn, Perseus, FluBot, Herodotus, Crocodilus, Brokewell, FakeCall, TrickMo, ToxicPanda, Cerberus |
-| 3 | **dropper** | WiFi Analyzer Pro | Stage-0 dormancy + delivery | **0/75** | Anatsa V4 |
-| 4 | **stage-1-evasion** | SkyWeather Forecast | Full 5-stage kill chain + ATS | **0/75** | Anatsa + SharkBot composite |
+| 1 | **sms-stealer** | CleanMaster Battery | SMS intercept, OTP extraction | **0/66** | FluBot, SharkBot V1 |
+| 2 | **overlay-banker** | Doc Reader Lite | 55 modules, 17 family techniques | **0/66** | Anatsa, SharkBot, Klopatra, Mirax, Vespertine, Drelock, Apex, RatOn, Perseus, FluBot, Herodotus, Crocodilus, Brokewell, FakeCall, TrickMo, ToxicPanda, Cerberus |
+| 3 | **dropper** | WiFi Analyzer Pro | Stage-0 dormancy + delivery | **0/66** | Anatsa V4 |
+| 4 | **stage-1-evasion** | SkyWeather Forecast | Full 5-stage kill chain + ATS | **0/66** | Anatsa + SharkBot composite |
 
 > Most wild banker samples implement 3-5 techniques. The **overlay-banker** composes **40+ techniques from 17 families** in a single APK.
+
+<details>
+<summary><strong>VirusTotal Proof — 0/66 All Specimens (click to expand)</strong></summary>
+
+<br>
+
+| Specimen | SHA256 | VT Score |
+|---|---|:-:|
+| **sms-stealer** | `32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243` | 0/66 |
+| **overlay-banker** | `33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0` | 0/66 |
+| **dropper** | `254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed` | 0/66 |
+| **stage-1-evasion** | `af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612` | 0/66 |
+
+**sms-stealer** (Battery Boost Pro) — 0/66
+![sms-stealer VT](assets/vt-screenshots/sms-stealer-vt.png)
+
+**dropper** (WiFi Analyzer Pro) — 0/66
+![dropper VT](assets/vt-screenshots/dropper-vt.png)
+
+**overlay-banker** (Doc Reader Lite) — 0/66
+![overlay-banker VT](assets/vt-screenshots/overlay-banker-vt.png)
+
+**stage-1-evasion** (SkyWeather Forecast) — 0/66
+![stage-1-evasion VT](assets/vt-screenshots/stage-1-evasion-vt.png)
+
+*Scanned 2026-05-14. Overlay-banker flagged by Zenbox sandbox as "MALWARE ADWARE TROJAN EVADER" — static AV engines still score 0/66.*
+
+</details>
 
 ---
 
@@ -242,7 +270,7 @@ frida -U -l detection/frida/master-monitor.js -f com.docreader.lite
 
 ## Who This Is For
 
-**Detection Engineers** — 75 AV engines scored 0 on specimens implementing ATS, screen streaming, call hijacking, TOTP capture, NFC relay, residential proxy, and 40+ other techniques. The 107 detection rules target behavioral invariants that survive evasion.
+**Detection Engineers** — 66 AV engines scored 0 on specimens implementing ATS, screen streaming, call hijacking, TOTP capture, NFC relay, residential proxy, and 40+ other techniques. The 107 detection rules target behavioral invariants that survive evasion.
 
 **Red Teamers** — The VT evasion research documents how ML classifiers operate on build-artifact topology, not application semantics. 11 rounds of source-level changes had zero effect on VT score.
 
@@ -259,7 +287,7 @@ These are not random stealers from underground forums.
 - **Production-grade architecture** — 37 techniques from 17 documented families, composed into working kill chains
 - **Lab-constrained** — C2 = RFC1918/loopback only, no public exfil
 - **Research artifacts** — every attack ships with matching detection rules
-- **Evasion-validated** — 0/75 VirusTotal is empirical, not theoretical
+- **Evasion-validated** — 0/66 VirusTotal is empirical, not theoretical
 
 Safety constraints (loopback C2, own-package filters) are **code-level**, not architecture-level. The architecture is production-grade. See [SECURITY.md](SECURITY.md).
 
@@ -279,10 +307,10 @@ takopii/
 │   ├── REDTEAM-ANALYSIS.md       4,025 lines — offensive analysis
 │   ├── BLUETEAM-DETECTION.md     5,457 lines — detection engineering
 │   └── VT-EVASION-RESEARCH.md    949 lines — ML evasion research
-├── detection/                    95 standalone detection rules
+├── detection/                    107 standalone detection rules
 │   ├── yara/                     24 YARA rules (9 files + master)
 │   ├── sigma/                    34 Sigma rules (11 files + master)
-│   └── frida/                    48 Frida hooks (13 files + master)
+│   └── frida/                    13 Frida monitors (13 files + master)
 ├── SECURITY.md                   Safety contract + threat model
 ├── CONTRIBUTING.md               How to contribute
 └── awesome-android-banker-defense.md   Curated resource list
@@ -321,4 +349,4 @@ If this project helps your research, detection engineering, or education — sta
 
 ---
 
-> *The stealer code is real. The detection rules are real. The 0/75 is real. Study it before it studies your users.*
+> *The stealer code is real. The detection rules are real. The 0/66 is real. Study it before it studies your users.*

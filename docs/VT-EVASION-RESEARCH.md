@@ -1,6 +1,6 @@
 # VirusTotal Evasion Research — 11-Round ML Classifier Defeat
 
-> Empirical documentation of how 4 Android banker-malware specimens were iterated from detected -> 0/75 VirusTotal across 11 optimization rounds. Findings demonstrate that ML-based static classifiers operate on **build-artifact topology** and **manifest capability surface**, not application-logic semantics — and are therefore trivially evadable.
+> Empirical documentation of how 4 Android banker-malware specimens were iterated from detected -> 0/66 VirusTotal across 11 optimization rounds. Findings demonstrate that ML-based static classifiers operate on **build-artifact topology** and **manifest capability surface**, not application-logic semantics — and are therefore trivially evadable.
 
 ---
 
@@ -8,12 +8,12 @@
 
 | Specimen | Camouflage | Package | VT Score | SHA256 |
 |---|---|---|---|---|
-| stage-1-evasion | SkyWeather Forecast | `com.skyweather.forecast` | **0/75** | `af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612` |
-| overlay-banker | Doc Reader Lite | `com.docreader.lite` | **0/75** | `33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0` |
-| sms-stealer | Battery Boost Pro | `com.cleanmaster.battery` | **0/75** | `32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243` |
-| dropper | WiFi Analyzer Pro | `com.wifianalyzer.pro` | **0/75** | `254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed` |
+| stage-1-evasion | SkyWeather Forecast | `com.skyweather.forecast` | **0/66** | `af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612` |
+| overlay-banker | Doc Reader Lite | `com.docreader.lite` | **0/66** | `33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0` |
+| sms-stealer | Battery Boost Pro | `com.cleanmaster.battery` | **0/66** | `32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243` |
+| dropper | WiFi Analyzer Pro | `com.wifianalyzer.pro` | **0/66** | `254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed` |
 
-All 4/4 specimens confirmed 0/75 on 2026-05-14.
+All 4/4 specimens confirmed 0/66 on 2026-05-14.
 
 ---
 
@@ -28,7 +28,7 @@ Not all 4 specimens required the same evasion effort:
 | **overlay-banker** | 1/75 (K7GW) | Round 11: 3 iterative fixes — dependency weight failed, native removal failed, RAT permission stripping succeeded | 11 |
 | **stage-1-evasion** | 1/75 (Kaspersky) | Round 11: manifest-bound class rename (stealer vocab → weather-themed) | 11 |
 
-**Dropper** was the only specimen that achieved 0/75 without Round 11 intervention — it already incorporated all Round 10 build-pipeline lessons.
+**Dropper** was the only specimen that achieved 0/66 without Round 11 intervention — it already incorporated all Round 10 build-pipeline lessons.
 
 **SMS-stealer, overlay-banker, and stage-1-evasion** each required Round 11 specimen-specific fixes targeting three different classifiers (Kaspersky Boogr.gsh, K7GW, BitDefenderFalx). Round 11 revealed that **different engines target fundamentally different feature dimensions** — one targets manifest capability surface, another targets manifest-bound class names, a third targets build-artifact topology. No single evasion strategy defeats all three simultaneously; each required targeted intervention.
 
@@ -248,7 +248,7 @@ Round 11 targeted the remaining 1/75 detections on sms-stealer, overlay-banker, 
 
 3. **Obfuscation dictionary:** Added 80+ battery/optimization-themed identifier names (`batteryLevel`, `chargeRate`, `dischargeRate`, `thermalState`, `cpuFrequency`, etc.). R8 uses these to rename all post-minification identifiers, making the DEX string pool read like a legitimate battery optimization app.
 
-**Result:** 0/75 ✓
+**Result:** 0/66 ✓
 
 **Analysis:** Boogr.gsh is a different model than BitDefenderFalx. Where Falx's `aATNS` cluster was defined by `{OkHttp + aggressive R8 + themed dictionary}`, Boogr.gsh appears sensitive to the **class-count distribution** and **identifier vocabulary coherence**. The sms-stealer had already removed OkHttp (Round 10), leaving ~800 DEX classes — a thin profile. Adding 9 dependencies doubled the class count and diversified the method-signature distribution. The dictionary provided vocabulary coherence with the app's camouflage identity (battery optimizer). The combination moved the specimen from "thin suspicious app" to "normal utility app with lots of AndroidX" in Boogr.gsh's feature space.
 
@@ -280,7 +280,7 @@ Round 11 targeted the remaining 1/75 detections on sms-stealer, overlay-banker, 
 
 Updated all cross-references in 9 source files: `AccessibilityEngine.kt`, `NotificationEngine.kt`, `SmsInterceptor.kt`, `SyncTask.kt`, `UpdateChannel.kt`, `MainActivity.kt`, `EnableAccessibilityActivity.kt`, `OverlayRenderer.kt`, `AtsEngine.kt`. Proguard `-keep` rules updated to match.
 
-**Result:** 0/75 ✓
+**Result:** 0/66 ✓
 
 **Analysis:** This fix targets a different Boogr.gsh feature dimension than 11a. The ML model extracts **type descriptor strings** from the DEX constant pool — these are the fully-qualified class names that survive R8 because they're manifest-bound. Tokens like `AccessibilityEngine`, `SmsInterceptor`, `NotificationEngine` are high-signal features that appear almost exclusively in banker malware. Tokens like `VoiceReadoutService`, `WeatherAlertListener`, `ForecastSyncWorker` are low-signal — they appear in thousands of legitimate apps.
 
@@ -337,7 +337,7 @@ android.permission.RECEIVE_BOOT_COMPLETED
 ```
 
 Re-built. Re-uploaded.
-→ **0/75** ✓
+→ **0/66** ✓
 
 **Analysis:** K7GW's `005b8e2e1` is a **static rule ID** (not a binary hash — same ID fired across 3 different APK builds). The rule targets the **combined manifest capability surface**: when the union of declared permissions crosses a banker+RAT threshold, the rule fires. The overlay-banker's original manifest declared capabilities spanning accessibility abuse, notification interception, SMS capture, NFC relay, camera/audio surveillance, location tracking, contact harvesting, call interception, and package management — a capability surface that exceeds what any legitimate app would declare. Reducing from 20+ permissions (banker + RAT) to 8 permissions (banker-only) dropped below K7GW's decision boundary.
 
@@ -393,9 +393,9 @@ Rounds 3-9 modified application semantics: string vocabulary, package structure,
 
 Round 10 modified only build-pipeline configuration: library dependency, R8 settings, obfuscation dictionary. No application logic changed. No stealer functionality changed. The sms-stealer still reads SMS via ContentResolver. The dropper still loads DEX via DexClassLoader. The exfiltration still POSTs JSON to loopback. Every line of offensive code is identical. Only the build artifacts changed. The cluster broke. Build artifacts are the features.
 
-**Evidence 3 — Two specimens built after lessons learned achieved 0/75 on first submission.**
+**Evidence 3 — Two specimens built after lessons learned achieved 0/66 on first submission.**
 
-stage-1-evasion and overlay-banker were constructed after the Round 10 breakthrough. They incorporated the lessons: HttpURLConnection instead of OkHttp, standard R8 configuration, no custom dictionary. Both achieved 0/75 on their first VT submission — no iteration required. stage-1-evasion contains significantly more offensive code than sms-stealer (16 core offensive .kt files vs. 8, a full 5-stage ATS kill chain with GestureInjector, ScreenReader, CredentialStore, OtpExtractor, NotificationEngine, SmsInterceptor) — yet it was invisible to the classifier. **More malicious code, less ML signal.** The "fix" was the build pipeline, not the code.
+stage-1-evasion and overlay-banker were constructed after the Round 10 breakthrough. They incorporated the lessons: HttpURLConnection instead of OkHttp, standard R8 configuration, no custom dictionary. Both achieved 0/66 on their first VT submission — no iteration required. stage-1-evasion contains significantly more offensive code than sms-stealer (16 core offensive .kt files vs. 8, a full 5-stage ATS kill chain with GestureInjector, ScreenReader, CredentialStore, OtpExtractor, NotificationEngine, SmsInterceptor) — yet it was invisible to the classifier. **More malicious code, less ML signal.** The "fix" was the build pipeline, not the code.
 
 **Evidence 4 — The `aATNS` cluster held across code changes but broke across build changes.**
 
@@ -521,10 +521,10 @@ The two specimens built after Round 10 lessons validate the theory:
 
 | Specimen | Offensive Code Volume | Build Pipeline | Final VT | Evasion Rounds |
 |---|---|---|---|---|
-| sms-stealer | 8 .kt files, ~600 LOC | HttpURLConnection + optimize R8 + battery dict + 9 deps | **0/75** | 11 (Falx→Boogr.gsh→clean) |
-| dropper | 6 .kt files, ~400 LOC | HttpURLConnection + standard R8 + no dict | **0/75** | 10 |
-| stage-1-evasion | 16 core .kt files, ~2,800 LOC | HttpURLConnection + aggressive R8 + weather dict | **0/75** | 11 (Boogr.gsh class-name fix) |
-| overlay-banker | 43 .kt files, ~5,200 LOC, OkHttp included | OkHttp + standard R8 + no dict + RAT perms stripped | **0/75** | 11 (K7GW capability-surface fix) |
+| sms-stealer | 8 .kt files, ~600 LOC | HttpURLConnection + optimize R8 + battery dict + 9 deps | **0/66** | 11 (Falx→Boogr.gsh→clean) |
+| dropper | 6 .kt files, ~400 LOC | HttpURLConnection + standard R8 + no dict | **0/66** | 10 |
+| stage-1-evasion | 16 core .kt files, ~2,800 LOC | HttpURLConnection + aggressive R8 + weather dict | **0/66** | 11 (Boogr.gsh class-name fix) |
+| overlay-banker | 43 .kt files, ~5,200 LOC, OkHttp included | OkHttp + standard R8 + no dict + RAT perms stripped | **0/66** | 11 (K7GW capability-surface fix) |
 
 stage-1-evasion has **4.7x more offensive code** than sms-stealer but was invisible on first submission. overlay-banker **still includes OkHttp** (5.28 MB APK) but was invisible on first submission — because it uses standard R8 and no custom dictionary. This confirms the composite nature of the `aATNS` cluster: OkHttp alone is not sufficient to trigger it. The cluster requires the **conjunction** of OkHttp + aggressive R8 + themed dictionary. overlay-banker has one of three; the cluster requires all three.
 
@@ -616,7 +616,7 @@ overlay-banker is the most instructive specimen for understanding **multi-engine
 |---|---|---|---|
 | 11c-1 | +9 benign dependencies | Still 1/75 | K7GW not triggered by class-count |
 | 11c-2 | Removed native .so files | Still 1/75 | K7GW not triggered by ELF binaries |
-| 11c-3 | Stripped 18 RAT permissions | **0/75** ✓ | K7GW triggered by manifest capability union |
+| 11c-3 | Stripped 18 RAT permissions | **0/66** ✓ | K7GW triggered by manifest capability union |
 
 **Implication for defenders:** K7GW's capability-surface classifier is the most defensible of the three engines — it targets something the attacker cannot arbitrarily change (the manifest must declare capabilities the code uses). However, the overlay-banker proves this is still evadable: strip the RAT permissions, keep the core banker permissions, and the stealer-code survives (R8 tree-shakes orphaned code paths, or `checkSelfPermission()` returns DENIED and the code skips gracefully). The manifest is a declaration of intent, not a guarantee of capability — and reducing the declaration below the classifier's threshold is trivial.
 
@@ -638,7 +638,7 @@ Core offensive modules: `GestureInjector.kt`, `ScreenReader.kt`, `CredentialStor
 
 16 core offensive files. ~2,800 lines of offensive Kotlin. The most dangerous capabilities in the Takopii curriculum — full ATS (Automatic Transfer System) engine that can drive UI automation via AccessibilityService to perform fraudulent transfers.
 
-**VT result: 0/75 on first submission.**
+**VT result: 0/66 on first submission.**
 
 Why? Because it was built with:
 - `HttpURLConnection` instead of OkHttp (zero library fingerprint)
@@ -879,8 +879,8 @@ This means an attacker can change every high-weight feature without touching a s
 | 7 | Week 4 | Both | Class rename (SmsGrabber -> DataCollector), split layers | 1/75 | 1/75 | `aATNS` cluster invariant |
 | 8 | Week 4 | sms-stealer | Removed RECEIVE_SMS + BroadcastReceiver | 1/75 | 1/75 | Manifest change insufficient |
 | 9 | Week 5 | Both | String externalization to strings.xml | 1/75 | 1/75 | `aATNS` cluster invariant |
-| **10** | **Week 5** | **Both** | **OkHttp removal + dictionary deletion + R8 softening** | **0/75** | **0/75** | **Falx cluster broken** |
-| **11a** | **Week 6** | **sms-stealer** | **optimize R8 + 9 deps + battery dictionary** | **0/75** | -- | **Boogr.gsh defeated** |
+| **10** | **Week 5** | **Both** | **OkHttp removal + dictionary deletion + R8 softening** | **0/66** | **0/66** | **Falx cluster broken** |
+| **11a** | **Week 6** | **sms-stealer** | **optimize R8 + 9 deps + battery dictionary** | **0/66** | -- | **Boogr.gsh defeated** |
 | **11b** | **Week 6** | **stage-1-evasion** | **5 manifest-bound class renames** | -- | -- | **Boogr.gsh defeated (class names)** |
 | **11c** | **Week 6** | **overlay-banker** | **18 RAT permissions stripped from manifest** | -- | -- | **K7GW defeated (capability surface)** |
 

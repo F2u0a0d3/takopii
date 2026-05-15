@@ -2,7 +2,7 @@
 
 Standalone dropper-shape APK demonstrating the full Anatsa/SharkBot kill chain.
 Functional weather app camouflage with embedded offensive modules gated behind
-evasion checks. 1.70 MB signed release, 0/75 VT.
+evasion checks. 1.70 MB signed release, 0/66 VT.
 
 **This is a lab specimen. See [`../../SAFETY.md`](../../SAFETY.md) for the safety contract.**
 

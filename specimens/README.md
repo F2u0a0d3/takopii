@@ -1,12 +1,12 @@
 # Takopii Specimens
 
-> **4 Android banker-malware specimens. 0/75 VirusTotal. 17 real-world family techniques. 10,400+ lines of red/blue/purple analysis.**
+> **4 Android banker-malware specimens. 0/66 VirusTotal. 17 real-world family techniques. 10,400+ lines of red/blue/purple analysis.**
 
 Production-grade banker architectures with lab-safety constraints. Each builds independently with distinct camouflage identity. Techniques sourced from 17 documented wild banker families (Anatsa, SharkBot, Klopatra, Mirax, Vespertine, Drelock, Apex, RatOn, Perseus, FluBot, Herodotus, Crocodilus, Brokewell, FakeCall, TrickMo, ToxicPanda, Cerberus).
 
 ```
 ┌──────────────────────────────────────────────────────────────────────┐
-│  4/4 APKs    →  0/75 VirusTotal (confirmed 2026-05-14)             │
+│  4/4 APKs    →  0/66 VirusTotal (confirmed 2026-05-14)             │
 │  187 .kt     →  6.9 MB total APK across 4 specimens               │
 │  42 modules  →  overlay-banker alone: techniques from 17 families  │
 │  10,431 lines →  RED (4,025) + BLUE (5,457) + VT Research (949)    │
@@ -50,7 +50,7 @@ Every technique below is implemented as working code in at least one specimen, s
 | MediaProjection auto-consent | Klopatra | overlay-banker | `MediaProjectionAutoConsent.kt` |
 | Play Integrity recon | Drelock | overlay-banker | `PlayIntegrityProbe.kt` |
 
-> Most wild banker samples implement 3-5 techniques. The overlay-banker specimen composes **40+ techniques from 17 families** in a single APK — and scores **0/75 on VirusTotal**.
+> Most wild banker samples implement 3-5 techniques. The overlay-banker specimen composes **40+ techniques from 17 families** in a single APK — and scores **0/66 on VirusTotal**.
 
 ---
 
@@ -80,11 +80,11 @@ Full rules in [`BLUETEAM-DETECTION.md`](../docs/BLUETEAM-DETECTION.md). Standalo
 
 | # | Directory | Camouflage | Package | VT Score | Kill Chain | Source Files |
 |---|---|---|---|---|---|---|
-| 1 | [`sms-stealer/`](#1-sms-stealer--battery-boost-pro) | Battery Boost Pro | `com.cleanmaster.battery` | **0/75** | SMS intercept | 53 .kt |
-| 2 | [`overlay-banker/`](#2-overlay-banker--doc-reader-lite) | Doc Reader Lite | `com.docreader.lite` | **0/75** | A11y + Overlay + SMS + NLS + NFC + VNC + ATS + Proxy | 42 .kt |
-| 3 | [`dropper/`](#3-dropper--wifi-analyzer-pro) | WiFi Analyzer Pro | `com.wifianalyzer.pro` | **0/75** | Stage 0 delivery | 50 .kt |
+| 1 | [`sms-stealer/`](#1-sms-stealer--battery-boost-pro) | Battery Boost Pro | `com.cleanmaster.battery` | **0/66** | SMS intercept | 53 .kt |
+| 2 | [`overlay-banker/`](#2-overlay-banker--doc-reader-lite) | Doc Reader Lite | `com.docreader.lite` | **0/66** | A11y + Overlay + SMS + NLS + NFC + VNC + ATS + Proxy | 42 .kt |
+| 3 | [`dropper/`](#3-dropper--wifi-analyzer-pro) | WiFi Analyzer Pro | `com.wifianalyzer.pro` | **0/66** | Stage 0 delivery | 50 .kt |
 | 4 | [`stage-2-payload/`](#4-stage-2-payload--reconnaissance-module) | (no UI) | `payload.Module` | N/A | Stage 2 recon | 1 .java |
-| 5 | [`stage-1-evasion/`](#5-stage-1-evasion--skyweather-forecast) | SkyWeather Forecast | `com.skyweather.forecast` | **0/75** | **Full 5-stage** | 42 .kt |
+| 5 | [`stage-1-evasion/`](#5-stage-1-evasion--skyweather-forecast) | SkyWeather Forecast | `com.skyweather.forecast` | **0/66** | **Full 5-stage** | 42 .kt |
 
 ### SHA256 Hashes
 
@@ -126,7 +126,7 @@ overlay-banker:   33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2
 ## 1. sms-stealer / Battery Boost Pro
 
 **Shape:** Battery optimization utility hiding an SMS interceptor.
-**VT:** 0/75 | **APK:** 1.70 MB | **Source:** 53 .kt files
+**VT:** 0/66 | **APK:** 1.70 MB | **Source:** 53 .kt files
 
 ```
 com.cleanmaster.battery/
@@ -161,7 +161,7 @@ com.cleanmaster.battery/
 ## 2. overlay-banker / Doc Reader Lite
 
 **Shape:** PDF/document reader hiding a full overlay banker + frontier 2026 modules.
-**VT:** 0/75 | **APK:** 1.84 MB | **Source:** 42 .kt files | **Families:** 11
+**VT:** 0/66 | **APK:** 1.84 MB | **Source:** 42 .kt files | **Families:** 11
 **Most sophisticated open-source banker specimen that exists.**
 
 ```
@@ -234,7 +234,7 @@ com.docreader.lite/
 ## 3. dropper / WiFi Analyzer Pro
 
 **Shape:** WiFi signal analyzer hiding a Stage 0 → Stage 1 delivery mechanism.
-**VT:** 0/75 | **APK:** 1.68 MB | **Source:** 50 .kt files
+**VT:** 0/66 | **APK:** 1.68 MB | **Source:** 50 .kt files
 
 ```
 com.wifianalyzer.pro/
@@ -303,7 +303,7 @@ python scripts/build-payload.py
 ## 5. stage-1-evasion / SkyWeather Forecast
 
 **Shape:** Weather forecast app hiding the full Anatsa/SharkBot kill chain. **Capstone specimen.**
-**VT:** 0/75 | **APK:** 1.74 MB | **Source:** 42 .kt files
+**VT:** 0/66 | **APK:** 1.74 MB | **Source:** 42 .kt files
 
 Functional weather UI camouflage with 14 offensive modules gated behind evasion checks.
 
@@ -441,7 +441,7 @@ Or download pre-built APKs from [Releases](../../releases).
 
 ## Why This Matters
 
-**For detection engineers:** 75 AV engines scored 0 on specimens implementing ATS automated fraud, behavior mimicry, DGA, NFC relay, residential proxy, and 20+ other banker techniques. The `BLUETEAM-DETECTION.md` provides 107 detection artifacts (YARA + Sigma + Frida) targeting behavioral invariants that survive evasion — the layer VT's ML classifiers don't reach.
+**For detection engineers:** 66 AV engines scored 0 on specimens implementing ATS automated fraud, behavior mimicry, DGA, NFC relay, residential proxy, and 20+ other banker techniques. The `BLUETEAM-DETECTION.md` provides 107 detection artifacts (YARA + Sigma + Frida) targeting behavioral invariants that survive evasion — the layer VT's ML classifiers don't reach.
 
 **For red teamers:** The `VT-EVASION-RESEARCH.md` documents how ML static classifiers (BitDefenderFalx) operate on build-artifact topology, not application semantics. OkHttp bytecode + aggressive R8 + themed obfuscation dictionary = ML cluster. Remove all three = invisible. 11 rounds of source-level changes (renaming, restructuring, camouflage classes) had zero effect.
 
@@ -458,7 +458,7 @@ These are not random stealers scraped from underground forums. They are:
 - **Production-grade architectures** — techniques from 17 documented banker families, composed into working kill chains
 - **Lab-constrained** — C2 = RFC1918/loopback only, no public exfil capability
 - **Research artifacts** — every attack ships with matching detection rules
-- **Evasion-validated** — 0/75 VT is empirical, not theoretical
+- **Evasion-validated** — 0/66 VT is empirical, not theoretical
 
 The safety constraints (loopback C2, lab gates, own-package filters) are **code-level**, not architecture-level. The architecture is production-grade. See [`SECURITY.md`](../SECURITY.md) for the honest threat model.
 
