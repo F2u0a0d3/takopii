@@ -31,26 +31,22 @@
 
 <br>
 
-| Specimen | SHA256 | VT Score |
-|---|---|:-:|
-| **sms-stealer** | `32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243` | 0/66 |
-| **overlay-banker** | `33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0` | 0/66 |
-| **dropper** | `254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed` | 0/66 |
-| **stage-1-evasion** | `af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612` | 0/66 |
+| Specimen | Camouflage | SHA256 | VT | Verify |
+|---|---|---|:-:|:-:|
+| **sms-stealer** | Battery Boost Pro | `32f37e...6e243` | **0/66** | [View on VT](https://www.virustotal.com/gui/file/32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243) |
+| **overlay-banker** | Doc Reader Lite | `332079...e2b0` | **0/66** | [View on VT](https://www.virustotal.com/gui/file/33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0) |
+| **dropper** | WiFi Analyzer Pro | `254465...9ee7ed` | **0/66** | [View on VT](https://www.virustotal.com/gui/file/254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed) |
+| **stage-1-evasion** | SkyWeather Forecast | `af5ceb...01612` | **0/66** | [View on VT](https://www.virustotal.com/gui/file/af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612) |
 
-**sms-stealer** (Battery Boost Pro) — 0/66
-![sms-stealer VT](assets/vt-screenshots/sms-stealer-vt.png)
+**Full SHA256 hashes:**
+```
+sms-stealer:      32f37e555609a3ae9547533563895fe13227aea773dde13d3a3720df84c6e243
+overlay-banker:   33207904cb76210b75904d25aee021ca85d313cc1bf79368c3c6abb523d8e2b0
+dropper:          254465be9b6b2c8aeb951dabe23b6f9032ef149006ef2281b1e63bdb6a9ee7ed
+stage-1-evasion:  af5ceb94cb9d7bc9a37eacca1cf25b066761e24429bda7151d52378e69b01612
+```
 
-**dropper** (WiFi Analyzer Pro) — 0/66
-![dropper VT](assets/vt-screenshots/dropper-vt.png)
-
-**overlay-banker** (Doc Reader Lite) — 0/66
-![overlay-banker VT](assets/vt-screenshots/overlay-banker-vt.png)
-
-**stage-1-evasion** (SkyWeather Forecast) — 0/66
-![stage-1-evasion VT](assets/vt-screenshots/stage-1-evasion-vt.png)
-
-*Scanned 2026-05-14. Overlay-banker flagged by Zenbox sandbox as "MALWARE ADWARE TROJAN EVADER" — static AV engines still score 0/66.*
+> Scanned 2026-05-14. Overlay-banker flagged by Zenbox sandbox as "MALWARE ADWARE TROJAN EVADER" + Suricata LOW severity 1 — static AV engines still score 0/66. Click "View on VT" links above to verify live.
 
 </details>
 
