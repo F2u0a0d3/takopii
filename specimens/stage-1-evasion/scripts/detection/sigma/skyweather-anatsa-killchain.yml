@@ -1,0 +1,39 @@
+title: SkyWeather Forecast - Anatsa-Shape Kill Chain Sequence
+id: d7a1f3e0-1001-4a5b-9e2c-skyweather-killchain
+status: experimental
+description: |
+  Detects the full Anatsa-shape kill chain: device fingerprint beacon →
+  config fetch → payload download → credential exfil. Sequence detection
+  across temporally-ordered network events.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1437.001, T1407
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.command_and_control
+  - attack.exfiltration
+  - attack.t1437.001
+  - attack.t1407
+logsource:
+  category: proxy
+  product: android
+detection:
+  beacon:
+    url|contains: '/api/v1/beacon'
+    method: 'POST'
+  config_fetch:
+    url|contains: '/api/v1/config'
+    method: 'GET'
+  payload_fetch:
+    url|contains: '/api/v1/payload'
+    method: 'GET'
+  credential_exfil:
+    url|contains: '/api/v1/beacon'
+    method: 'POST'
+    body|contains: '"c":['
+  condition: beacon and (config_fetch or payload_fetch or credential_exfil)
+  timeframe: 30m
+falsepositives:
+  - Weather API endpoints using /api/v1/ prefix (mitigated by beacon+config combo)
+level: critical

@@ -1,0 +1,48 @@
+MIT License
+
+Copyright (c) 2026 Takopii Project Contributors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+---
+
+ADDITIONAL TERMS — RESPONSIBLE USE
+
+This software contains Android malware specimen source code intended for
+educational and research purposes. By using this software, you agree to:
+
+1. Use specimens ONLY on devices and systems you own or have explicit
+   authorization to test.
+
+2. NOT distribute modified specimens with safety constraints removed
+   for malicious purposes.
+
+3. NOT use specimen techniques against real users, real banking
+   applications, or real financial institutions without explicit
+   written authorization.
+
+4. COMPLY with all applicable local, national, and international laws
+   regarding computer security research and malware analysis.
+
+5. ACKNOWLEDGE that the authors bear no responsibility for misuse
+   of this educational material.
+
+These additional terms are advisory and do not modify the MIT License
+grant above. They reflect the project's intended use and community norms.
+See SECURITY.md for the full safety contract.

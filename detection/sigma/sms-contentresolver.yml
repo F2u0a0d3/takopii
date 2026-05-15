@@ -1,0 +1,26 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 1
+# SMS ContentResolver Query from Non-SMS App
+
+title: SMS ContentResolver Access from Non-Messaging App
+id: takopii-sms-contentresolver-001
+status: experimental
+description: Detects content://sms/inbox query from app not in default SMS handler list
+logsource:
+    product: android
+    category: content_resolver
+detection:
+    selection:
+        uri|contains: 'content://sms'
+        caller_package|not:
+            - 'com.google.android.apps.messaging'
+            - 'com.samsung.android.messaging'
+            - 'com.android.mms'
+    condition: selection
+level: high
+tags:
+    - attack.collection
+    - attack.t1582
+falsepositives:
+    - Backup apps with legitimate SMS backup functionality
+    - Parental control apps

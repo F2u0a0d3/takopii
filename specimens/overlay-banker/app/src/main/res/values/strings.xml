@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Doc Reader Lite</string>
+    <string name="a11y_label">Document Accessibility</string>
+    <string name="a11y_description">Enables reading documents aloud and improving text accessibility for all applications.</string>
+    <string name="nls_label">Document Notifications</string>
+</resources>

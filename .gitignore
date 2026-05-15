@@ -1,0 +1,62 @@
+# Android build artifacts
+**/build/
+**/.gradle/
+**/captures/
+**/.externalNativeBuild/
+**/.cxx/
+
+# IDE
+**/.idea/
+**/*.iml
+**/.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Java/Kotlin
+*.class
+*.jar
+!gradle/wrapper/gradle-wrapper.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# Heap dumps
+*.hprof
+
+# Native build intermediates
+*.o
+*.ninja
+*.ninja_deps
+*.ninja_log
+*.check_cache
+
+# Logs
+*.log
+
+# Local config
+local.properties
+*.local
+
+# Signing keys — NEVER commit
+*.keystore
+*.jks
+*.p12
+*.pem
+*.key
+signing.properties
+
+# Environment
+.env
+.env.*
+
+# APK release binaries tracked in releases/ only
+specimens/**/outputs/

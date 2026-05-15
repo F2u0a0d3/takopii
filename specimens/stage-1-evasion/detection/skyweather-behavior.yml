@@ -1,0 +1,166 @@
+# Sigma rules for SkyWeather evasion specimen runtime detection.
+#
+# These rules match against Android logcat / dumpsys / network logs
+# to detect the specimen's runtime behavior patterns.
+#
+# Format: Sigma-mobile (adapted from Sigma for Android event sources)
+
+title: SkyWeather WorkManager Beacon Scheduling
+id: tak-sigma-001
+status: stable
+description: |
+  Detects WorkManager one-shot task scheduling with weather-themed
+  work name followed by HTTP POST to loopback/RFC1918 within 60s.
+  Matches Stage 1 beacon pattern.
+author: Takopii Detection Engineering
+date: 2026-05-11
+references:
+  - ANALYSIS.md §4
+  - techniques/android-runtime/workmanager-scheduling.md
+mitre:
+  attack.technique: T1071.001  # Application Layer Protocol: Web Protocols
+logsource:
+  product: android
+  service: dumpsys_jobscheduler
+detection:
+  selection:
+    work_name|contains: 'weather_data_initial_sync'
+    work_tag|contains: 'weather_sync'
+  condition: selection
+falsepositives:
+  - Legitimate weather apps with background sync
+level: medium
+
+---
+
+title: SkyWeather DexClassLoader Runtime Load
+id: tak-sigma-002
+status: stable
+description: |
+  Detects DexClassLoader loading DEX from app-private internal storage
+  with subsequent file deletion. Matches Stage 2 payload delivery.
+  Android 14+ logs "Attempt to load writable dex file" as warning.
+author: Takopii Detection Engineering
+date: 2026-05-11
+references:
+  - ANALYSIS.md §5
+  - techniques/android-runtime/dexclassloader-runtime-loading.md
+mitre:
+  attack.technique: T1398  # Boot or Logon Initialization Scripts
+logsource:
+  product: android
+  service: logcat
+detection:
+  selection_load:
+    tag: 'eather.forecast'  # R8-mangled process name
+    message|contains: 'writable dex file'
+  selection_path:
+    message|contains:
+      - '.update_cache.dex'
+      - '.cache_data'
+  condition: selection_load or selection_path
+falsepositives:
+  - Apps with legitimate plugin architecture (rare in banking context)
+level: high
+
+---
+
+title: SkyWeather DGA Domain Resolution
+id: tak-sigma-003
+status: stable
+description: |
+  Detects MD5-seeded domain generation with week/year seed pattern.
+  Network observation: rapid sequential TCP connect attempts to
+  multiple 10.x.x.x addresses on varying ports within 10 seconds.
+author: Takopii Detection Engineering
+date: 2026-05-11
+references:
+  - ANALYSIS.md §6
+  - techniques/network/dga-domain-rotation.md
+mitre:
+  attack.technique: T1568.002  # Dynamic Resolution: DGA
+logsource:
+  product: android
+  service: network
+detection:
+  selection:
+    dst_ip|startswith: '10.'
+    dst_port:
+      - 8080
+      - 8443
+      - 9090
+      - 3000
+  timeframe: 10s
+  condition: selection | count() >= 3
+falsepositives:
+  - Development environments with multiple local services
+level: high
+
+---
+
+title: SkyWeather Anti-Debug Timing Probe
+id: tak-sigma-004
+status: stable
+description: |
+  Detects nanoTime-based timing probe for debugger detection.
+  Pattern: two nanoTime calls bracketing a tight computation loop,
+  with the result used in a conditional branch.
+author: Takopii Detection Engineering
+date: 2026-05-11
+references:
+  - ANALYSIS.md §7
+  - techniques/evasion/anti-debug-checks.md
+mitre:
+  attack.technique: T1622  # Debugger Evasion
+logsource:
+  product: android
+  service: frida_monitor
+detection:
+  selection:
+    hook_class: 'java.lang.System'
+    hook_method: 'nanoTime'
+    call_count_within_100ms: '>= 2'
+  condition: selection
+falsepositives:
+  - Performance benchmarking code
+level: medium
+
+---
+
+title: SkyWeather Full Kill Chain Detection
+id: tak-sigma-005
+status: stable
+description: |
+  Composite detection: beacon POST + payload GET + DexClassLoader load
+  + file deletion within 60-second window from single app.
+  Matches complete Anatsa Stage 1→2→3→4 progression.
+author: Takopii Detection Engineering
+date: 2026-05-11
+references:
+  - ANALYSIS.md §5-§6
+  - techniques/network/modular-loader-architecture.md
+mitre:
+  attack.technique:
+    - T1071.001  # Web Protocols
+    - T1398      # Dynamic Code Loading
+    - T1140      # Deobfuscate/Decode
+logsource:
+  product: android
+  service: network+logcat
+detection:
+  phase1_beacon:
+    http_method: 'POST'
+    dst_port: 8080
+    url|contains: '/api/v1/beacon'
+    content_type: 'application/json'
+  phase2_payload:
+    http_method: 'GET'
+    url|contains: '/api/v1/payload'
+    response_content_type: 'application/octet-stream'
+  phase3_load:
+    logcat_message|contains: 'writable dex'
+  timeframe: 60s
+  condition: phase1_beacon and phase2_payload and phase3_load
+falsepositives:
+  - None known — this combination is specific to modular-loader malware
+level: critical

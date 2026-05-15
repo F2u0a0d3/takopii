@@ -1,0 +1,24 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 2
+# ForegroundService Sequential Network Pattern (Dropper)
+
+title: ForegroundService Config Check Then Binary Download
+id: takopii-dropper-config-download-001
+status: experimental
+description: Detects foreground service performing config check followed by binary download
+logsource:
+    product: android
+    category: network
+detection:
+    config_check:
+        method: 'GET'
+        url|contains: '/api/v1/check'
+    payload_download:
+        method: 'GET'
+        content_type|contains: 'application/octet-stream'
+    timeframe: 60s
+    condition: config_check | payload_download
+level: high
+tags:
+    - attack.command_and_control
+    - attack.t1437

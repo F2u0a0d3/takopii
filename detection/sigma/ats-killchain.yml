@@ -1,0 +1,38 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 7
+# ATS Kill Chain Correlation
+
+title: Automatic Transfer System Kill Chain — Gesture Injection During Banking Session
+id: takopii-ats-killchain-001
+status: experimental
+description: |
+    Detects ATS (Automatic Transfer System) by correlating multiple events during
+    banking app foreground session: accessibility text capture + synthetic gesture
+    injection + OTP field fill. The canonical banker endgame — automated fraud.
+logsource:
+    product: android
+    category: accessibility
+detection:
+    banking_foreground:
+        event_type: 'TYPE_WINDOW_STATE_CHANGED'
+        package|contains:
+            - 'bank'
+            - 'finance'
+            - 'payment'
+    text_injection:
+        api_call: 'AccessibilityNodeInfo.performAction'
+        action: 'ACTION_SET_TEXT'
+    gesture_dispatch:
+        api_call: 'AccessibilityService.dispatchGesture'
+        caller_is_foreground: false
+    otp_drain:
+        api_call|contains: 'CredentialStore.peek'
+    timeframe: 60s
+    condition: banking_foreground and (text_injection or gesture_dispatch) and otp_drain
+level: critical
+tags:
+    - attack.fraud
+    - attack.t1626
+falsepositives:
+    - Accessibility testing frameworks (Espresso, UIAutomator) — non-production only
+    - Password managers with A11y autofill — check source package against known PMs

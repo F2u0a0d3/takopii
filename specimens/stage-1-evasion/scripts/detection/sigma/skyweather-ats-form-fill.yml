@@ -1,0 +1,59 @@
+title: SkyWeather Forecast - ATS Automated Form Fill
+id: d7a1f3e0-1008-4a5b-9e2c-skyweather-ats-form
+status: experimental
+description: |
+  Detects ATS (Automatic Transfer System) form-fill operations. Pattern:
+  C2 pushes ATS commands → specimen detects target banking app foregrounded →
+  ScreenReader locates input fields → GestureInjector dispatches SET_TEXT
+  actions to fill beneficiary/amount fields → confirms transfer.
+
+  This is the live-operator or automated transfer attack pattern that
+  SharkBot pioneered (research/06) and Anatsa mirrored (research/02).
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1417.001
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.credential_access
+  - attack.t1417.001
+logsource:
+  category: accessibility_event
+  product: android
+detection:
+  target_foreground:
+    # ATS trigger: target banking app detected in foreground
+    message|contains:
+      - 'ATS TRIGGERED'
+      - 'target_foreground'
+      - 'onTargetForegrounded'
+  set_text_injection:
+    # Synthetic text injection via Accessibility
+    event_type: 'SET_TEXT'
+    message|contains:
+      - 'ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE'
+      - 'performAction'
+      - 'SET_TEXT'
+  gesture_dispatch:
+    # Synthetic gesture injection
+    message|contains:
+      - 'dispatchGesture'
+      - 'GestureDescription'
+      - 'performGlobalAction'
+  ats_completion:
+    # ATS outcome events
+    message|contains:
+      - 'ats_complete'
+      - 'ats_abort'
+      - 'ats_result'
+  frida_ats:
+    # Frida ATS watcher alerts
+    message|contains:
+      - 'ATS ARMED'
+      - 'ATS TRIGGERED'
+      - 'GESTURE: dispatchGesture'
+  condition: (target_foreground and set_text_injection) or (target_foreground and gesture_dispatch) or ats_completion or frida_ats
+falsepositives:
+  - Automated testing frameworks (Espresso, UIAutomator) that use A11y actions.
+    Mitigated by requiring ATS-specific event strings.
+level: critical

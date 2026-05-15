@@ -1,0 +1,283 @@
+# Takopii Detection Corpus — RAT Behavioral Rules
+#
+# Author:  Takopii Framework
+# License: MIT — same as parent Takopii project
+#
+# Description:
+#   Runtime behavioral detection for RAT-class capabilities:
+#   Silent camera, audio recording, screen streaming, touch logging,
+#   TOTP capture, call forwarding, contact manipulation, factory reset.
+#
+#   Consumes events from Frida monitor hooks or Android logcat pipeline.
+
+---
+title: Silent Camera Capture Without Preview
+id: takopii-camera-silent-capture
+status: experimental
+description: |
+  Detects Camera2 API usage without preview surface — indicator of covert
+  photo capture. Brokewell (2025) captures front+rear camera for identity theft
+  and environment intelligence.
+author: Takopii Framework
+references:
+  - https://www.threatfabric.com/blogs/brokewell-trojan
+logsource:
+  category: android_api
+  product: frida_monitor
+detection:
+  selection:
+    api_class: 'CameraDevice'
+    api_method: 'createCaptureSession'
+  filter_preview:
+    surface_count: 1
+    surface_type: 'ImageReader'
+  condition: selection and filter_preview
+level: high
+tags:
+  - attack.collection
+  - attack.t1512
+falsepositives:
+  - QR code scanner apps that use Camera2 without visible preview
+  - Background barcode scanning libraries
+
+---
+title: Background Audio Recording
+id: takopii-audio-ambient-recording
+status: experimental
+description: |
+  Detects AudioRecord initialization with MIC source from non-foreground app.
+  Brokewell, Cerberus, SpyNote use ambient recording for call interception
+  and voice biometric capture.
+author: Takopii Framework
+logsource:
+  category: android_api
+  product: frida_monitor
+detection:
+  selection:
+    api_class: 'AudioRecord'
+    api_method: 'startRecording'
+  filter_source:
+    audio_source: 'MIC'
+  filter_background:
+    app_foreground: false
+  condition: selection and filter_source
+level: high
+tags:
+  - attack.collection
+  - attack.t1429
+
+---
+title: Screen Streaming to Remote Server
+id: takopii-screen-streaming
+status: experimental
+description: |
+  Detects MediaProjection-based screen capture with frame data sent to
+  remote endpoint. Brokewell streams frame-by-frame; Klopatra uses
+  hidden VNC; ToxicPanda records during ATS for operator verification.
+author: Takopii Framework
+logsource:
+  category: android_api
+  product: frida_monitor
+detection:
+  selection_capture:
+    api_class: 'MediaProjection'
+    api_method: 'createVirtualDisplay'
+  selection_send:
+    api_class|contains:
+      - 'OkHttpClient'
+      - 'WebSocket'
+    content_type|contains: 'image/'
+  timeframe: 5s
+  condition: selection_capture and selection_send
+level: critical
+tags:
+  - attack.collection
+  - attack.t1513
+
+---
+title: TOTP Authenticator App Scraping
+id: takopii-authenticator-capture
+status: experimental
+description: |
+  Detects Accessibility-based text scraping of authenticator apps.
+  Crocodilus (March 2025) first banker to specifically target Google
+  Authenticator TOTP codes via TG32XAZADG command.
+author: Takopii Framework
+logsource:
+  category: android_accessibility
+  product: frida_monitor
+detection:
+  selection:
+    source_package|contains:
+      - 'authenticator'
+      - 'com.authy'
+      - 'com.azure.authenticator'
+      - 'org.shadowice.flocke.andotp'
+      - 'com.beemdevelopment.aegis'
+    event_type: 'TYPE_VIEW_TEXT_CHANGED'
+  filter_text:
+    captured_text|re: '\\d{6,8}'
+  condition: selection and filter_text
+level: critical
+tags:
+  - attack.credential_access
+  - attack.t1517
+
+---
+title: USSD Call Forwarding Activation
+id: takopii-call-forwarding-ussd
+status: experimental
+description: |
+  Detects programmatic USSD execution for call forwarding. FakeCall
+  (Zimperium 2025) redirects outgoing bank calls to attacker-controlled
+  numbers via *21*NUMBER# codes.
+author: Takopii Framework
+logsource:
+  category: android_telephony
+  product: frida_monitor
+detection:
+  selection:
+    ussd_code|startswith:
+      - '*21*'
+      - '*61*'
+      - '*67*'
+      - '*62*'
+      - '##21#'
+  condition: selection
+level: high
+tags:
+  - attack.impact
+  - attack.t1616
+
+---
+title: Touch Event Keylogging
+id: takopii-touch-keylogging
+status: experimental
+description: |
+  Detects comprehensive AccessibilityEvent logging including click coordinates,
+  text input, and scroll events. Brokewell and TrickMo use this for PIN capture
+  on banking app PIN pads.
+author: Takopii Framework
+logsource:
+  category: android_accessibility
+  product: frida_monitor
+detection:
+  selection:
+    event_type|contains:
+      - 'TYPE_VIEW_CLICKED'
+      - 'TYPE_VIEW_TEXT_CHANGED'
+      - 'TYPE_VIEW_SCROLLED'
+    event_rate_per_second|gt: 5
+  filter_banking:
+    source_package|contains:
+      - 'bank'
+      - 'finance'
+      - 'wallet'
+  condition: selection and filter_banking
+level: high
+tags:
+  - attack.collection
+  - attack.t1417
+
+---
+title: Notification Suppression During Fraud
+id: takopii-notification-suppression
+status: experimental
+description: |
+  Detects programmatic notification cancellation targeting banking apps.
+  TrickMo and SOVA suppress fraud alert notifications during ATS to
+  prevent victim from seeing transfer confirmations.
+author: Takopii Framework
+logsource:
+  category: android_notification
+  product: frida_monitor
+detection:
+  selection:
+    api_method: 'cancelNotification'
+    source_package|contains:
+      - 'bank'
+      - 'finance'
+  condition: selection
+level: high
+tags:
+  - attack.defense_evasion
+
+---
+title: Remote Factory Reset Trigger
+id: takopii-factory-reset-remote
+status: experimental
+description: |
+  Detects remote-triggered factory reset — BRATA pattern anti-forensics.
+  After draining victim account, wipes device to destroy evidence.
+author: Takopii Framework
+logsource:
+  category: android_system
+  product: frida_monitor
+detection:
+  selection:
+    api_call|contains:
+      - 'wipe_data'
+      - 'MASTER_CLEAR'
+      - 'recovery'
+    trigger: 'remote_command'
+  condition: selection
+level: critical
+tags:
+  - attack.impact
+  - attack.t1447
+
+---
+title: Security App Automated Removal
+id: takopii-security-app-removal
+status: experimental
+description: |
+  Detects systematic detection and uninstallation of security/AV apps.
+  TrickMo, SOVA, Cerberus check for installed AV then trigger uninstall
+  intents to remove detection capability.
+author: Takopii Framework
+logsource:
+  category: android_package
+  product: frida_monitor
+detection:
+  selection_detect:
+    queried_packages|contains:
+      - 'com.avast'
+      - 'com.kaspersky'
+      - 'com.bitdefender'
+      - 'org.malwarebytes'
+      - 'com.symantec'
+      - 'com.eset'
+  selection_remove:
+    api_method: 'ACTION_UNINSTALL_PACKAGE'
+  timeframe: 30s
+  condition: selection_detect and selection_remove
+level: critical
+tags:
+  - attack.defense_evasion
+  - attack.t1629.001
+
+---
+title: Contact Injection or Replacement
+id: takopii-contact-injection
+status: experimental
+description: |
+  Detects programmatic contact insertion/replacement via ContentResolver.
+  Crocodilus (June 2025) injects fake bank support contacts so victim
+  calls attacker instead of real bank when seeking help.
+author: Takopii Framework
+logsource:
+  category: android_contacts
+  product: frida_monitor
+detection:
+  selection:
+    api_class: 'ContentResolver'
+    api_method|contains:
+      - 'applyBatch'
+      - 'insert'
+    uri|contains: 'contacts'
+  filter_bulk:
+    operation_count|gt: 3
+  condition: selection and filter_bulk
+level: high
+tags:
+  - attack.social_engineering

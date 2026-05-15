@@ -1,0 +1,40 @@
+# SkyWeather Forecast — Master Sigma Ruleset Index
+#
+# 12 behavioral detection rules for runtime event monitoring.
+# Each rule targets a distinct functional layer of the banker specimen.
+#
+# Usage:
+#   sigmac -t splunk -c sigma/master.yml sigma/*.yml
+#   # or scan logcat/telemetry streams against individual rules
+#
+# Rules by kill chain stage:
+#
+# INITIAL ACCESS + PERSISTENCE
+#   skyweather-permission-escalation.yml   Permission acquisition chain (A11y+NLS+SMS)
+#   skyweather-workmanager-c2-poll.yml     15-min WorkManager periodic C2 beacon
+#   skyweather-update-channel.yml          Config polling + target list updates
+#
+# CREDENTIAL ACCESS
+#   skyweather-accessibility-abuse.yml     A11y event volume + cross-package reading
+#   skyweather-overlay-credential-capture.yml  TYPE_ACCESSIBILITY_OVERLAY rendering
+#   skyweather-nls-otp-intercept.yml       NotificationListener OTP extraction
+#   skyweather-sms-otp-exfil.yml           SMS receiver + OTP exfil chain
+#
+# AUTOMATED TRANSFER (ATS)
+#   skyweather-ats-form-fill.yml           ATS target detection + form fill
+#   skyweather-ats-otp-autofill.yml        ATS OTP intercept + auto-inject
+#
+# EXECUTION + EVASION
+#   skyweather-modular-loader.yml          4-stage DexClassLoader payload chain
+#   skyweather-dcl-anti-forensics.yml      DEX load + immediate delete
+#
+# FULL KILL CHAIN
+#   skyweather-anatsa-killchain.yml        Beacon → config → payload → exfil sequence
+#
+# Expected coverage against specimen:
+#   All 12 rules fire during a full kill-chain exercise with Frida
+#   monitor attached + telemetry log collection + proxy capture.
+
+# Note: Sigma does not have a native "include" mechanism.
+# This file serves as an index. Apply rules individually or
+# concatenate with: cat sigma/skyweather-*.yml > combined.yml

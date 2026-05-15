@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.SkyWeather" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/sky_blue</item>
+        <item name="colorPrimaryDark">@color/sky_dark</item>
+        <item name="colorAccent">@color/sky_blue</item>
+        <item name="android:statusBarColor">@color/sky_dark</item>
+        <item name="android:windowBackground">@color/white</item>
+    </style>
+
+    <style name="Theme.SkyWeather.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
+    <style name="Theme.SkyWeather.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
+</resources>

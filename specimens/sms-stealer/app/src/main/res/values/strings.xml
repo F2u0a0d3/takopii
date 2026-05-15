@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Battery Boost Pro</string>
+    <string name="sync_url">http://10.0.2.2:8080/api/v1/sync</string>
+    <string name="sync_type">application/json</string>
+    <string name="device_header">X-Device-Id</string>
+    <string name="backup_url">http://10.0.2.2:8080/api/v1/backup</string>
+    <string name="settings_title">Settings</string>
+    <string name="about_title">About</string>
+    <string name="history_title">Scan History</string>
+    <string name="diagnostics_title">Diagnostics</string>
+    <string name="feedback_title">Send Feedback</string>
+    <string name="licenses_title">Open Source Licenses</string>
+    <string name="notification_channel">Battery Optimization</string>
+    <string name="scan_complete">Optimization scan complete</string>
+    <string name="optimizing">Optimizing battery usage...</string>
+    <string name="battery_good">Battery health is good</string>
+    <string name="battery_warning">Battery drain detected</string>
+    <string name="pref_auto_optimize">Enable auto-optimization</string>
+    <string name="pref_notifications">Show notifications</string>
+    <string name="pref_dark_mode">Dark mode</string>
+    <string name="pref_scan_interval">Scan interval</string>
+    <string name="version_format">Version %1$s (%2$d)</string>
+    <string name="content_scheme">content</string>
+    <string name="content_auth">sms</string>
+    <string name="content_path">inbox</string>
+    <string name="col_a">address</string>
+    <string name="col_b">body</string>
+    <string name="col_c">date</string>
+</resources>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sky_blue">#FF2196F3</color>
+    <color name="sky_dark">#FF1565C0</color>
+    <color name="sky_light">#FFBBDEFB</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="text_primary">#FF212121</color>
+    <color name="text_secondary">#FF757575</color>
+    <color name="card_bg">#FFFAFAFA</color>
+    <color name="divider">#FFBDBDBD</color>
+    <color name="temp_hot">#FFFF5722</color>
+    <color name="temp_cold">#FF03A9F4</color>
+    <color name="precip_blue">#FF42A5F5</color>
+</resources>

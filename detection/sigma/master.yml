@@ -1,0 +1,116 @@
+# Takopii Framework — Sigma Detection Rules Master Index
+# Source: specimens/BLUETEAM-DETECTION.md + RAT behavioral expansion
+# Total rules: 34 (24 core + 10 RAT behavioral)
+#
+# This file documents all Sigma rules extracted from the Blue Team
+# Detection Guide. Rules are organized into standalone .yml files
+# for individual use and a combined frontier.yml for rules 9-24.
+#
+# ============================================================================
+# RULE SUMMARY TABLE
+# ============================================================================
+#
+# | #  | ID                                          | File                    | Level    | MITRE        | Description                                              |
+# |----|---------------------------------------------|-------------------------|----------|--------------|----------------------------------------------------------|
+# | 1  | takopii-sms-contentresolver-001              | sms-contentresolver.yml | high     | T1582        | SMS ContentResolver query from non-SMS app               |
+# | 2  | takopii-dropper-config-download-001          | dropper-download.yml    | high     | T1437        | FG service config check then binary download             |
+# | 3  | takopii-overlay-trigger-001                  | overlay-trigger.yml     | critical | T1626        | A11y overlay window creation                             |
+# | 4  | takopii-dcl-antiforensics-001                | dcl-antiforensics.yml   | critical | T1407        | DexClassLoader load + file deletion                      |
+# | 5  | takopii-workmanager-beacon-001               | workmanager-beacon.yml  | high     | T1437        | WorkManager 15-min periodic POST beacon                  |
+# | 6  | takopii-dual-otp-capture-001                 | dual-otp-capture.yml    | critical | T1517        | NLS + SMS receiver in same package                       |
+# | 7  | takopii-ats-killchain-001                    | ats-killchain.yml       | critical | T1626        | ATS gesture injection during banking session             |
+# | 8  | takopii-a11y-overlay-chain-001               | a11y-overlay-chain.yml  | critical | T1626, T1517 | Full A11y overlay trigger pipeline                       |
+# | 9  | takopii-multiaxis-sensor-emulation-001       | frontier.yml            | high     | T1418        | Multi-axis sensor flat data (emulator detection)         |
+# | 10 | takopii-a11y-overlay-2032-timing-001         | frontier.yml            | critical | T1626        | TYPE_ACCESSIBILITY_OVERLAY (2032) creation timing        |
+# | 11 | takopii-hidden-vnc-frame-capture-001         | frontier.yml            | critical | T1513        | MediaProjection screen capture from non-system app       |
+# | 12 | takopii-nfc-relay-apdu-network-001           | frontier.yml            | critical | T1646        | NFC APDU relay to network endpoint                       |
+# | 13 | takopii-residential-proxy-socks5-001         | frontier.yml            | high     | T1090        | SOCKS5 server listener from non-VPN app                  |
+# | 14 | takopii-sso-hijacker-auto-approve-001        | frontier.yml            | critical | T1517        | A11y auto-approve on SSO MFA prompt                      |
+# | 15 | takopii-tee-offload-key-encrypt-net-001      | frontier.yml            | high     | T1573        | TEE key generation + encrypt + network POST              |
+# | 16 | takopii-perbuild-obfuscation-seed-001        | frontier.yml            | medium   | T1027        | SecureRandom timestamp seed (per-build obfuscation)      |
+# | 17 | takopii-play-integrity-probe-001             | frontier.yml            | medium   | T1418        | PackageManager query for Play Integrity components       |
+# | 18 | takopii-mediaprojection-autoconsent-001      | frontier.yml            | critical | T1626        | A11y auto-click on MediaProjection consent dialog        |
+# | 19 | takopii-noteapp-scraper-bip39-001            | frontier.yml            | critical | T1517        | A11y text extraction from note app (BIP39 scrape)        |
+# | 20 | takopii-early-init-provider-001              | frontier.yml            | high     | T1398        | ContentProvider pre-Application init with string decode  |
+# | 21 | takopii-stealth-fg-service-001               | frontier.yml            | high     | T1398        | FG service with silent notification channel              |
+# | 22 | takopii-boot-receiver-chain-001              | frontier.yml            | high     | T1398        | Boot receiver to FG service to network chain             |
+# | 23 | takopii-contact-harvester-bulk-001           | frontier.yml            | high     | T1636        | Contact list query + network exfiltration                |
+# | 24 | tak-screenreader-tree-traversal              | frontier.yml            | critical | T1517        | Full A11y tree traversal during banking session          |
+# |    |                                             |                         |          |              |                                                          |
+# | --- RAT BEHAVIORAL RULES (rat-behavioral.yml) ---|                         |          |              |                                                          |
+# | 25 | takopii-camera-silent-capture                | rat-behavioral.yml      | high     | T1512        | Camera2 API without preview surface                      |
+# | 26 | takopii-audio-ambient-recording              | rat-behavioral.yml      | high     | T1429        | AudioRecord MIC from non-foreground app                  |
+# | 27 | takopii-screen-streaming                     | rat-behavioral.yml      | critical | T1513        | MediaProjection + remote frame send                      |
+# | 28 | takopii-authenticator-capture                | rat-behavioral.yml      | critical | T1517        | A11y scraping of authenticator apps (TOTP)               |
+# | 29 | takopii-call-forwarding-ussd                 | rat-behavioral.yml      | high     | T1616        | USSD call forwarding activation                          |
+# | 30 | takopii-touch-keylogging                     | rat-behavioral.yml      | high     | T1417        | A11y touch event logging on banking apps                 |
+# | 31 | takopii-notification-suppression              | rat-behavioral.yml      | high     |              | Notification cancellation targeting banking apps         |
+# | 32 | takopii-factory-reset-remote                 | rat-behavioral.yml      | critical | T1447        | Remote-triggered factory reset                           |
+# | 33 | takopii-security-app-removal                 | rat-behavioral.yml      | critical | T1629.001    | AV package detection + uninstall                         |
+# | 34 | takopii-contact-injection                    | rat-behavioral.yml      | high     |              | Bulk contact insertion/replacement                       |
+#
+# ============================================================================
+# FILE INDEX
+# ============================================================================
+#
+# Standalone files (rules 1-8, core banker behavioral signatures):
+#   sms-contentresolver.yml   — Rule 1:  SMS access from non-SMS app
+#   dropper-download.yml      — Rule 2:  FG service config + binary download
+#   overlay-trigger.yml       — Rule 3:  A11y overlay window creation
+#   dcl-antiforensics.yml     — Rule 4:  DexClassLoader + file deletion
+#   workmanager-beacon.yml    — Rule 5:  15-min periodic POST
+#   dual-otp-capture.yml      — Rule 6:  NLS + SMS same package
+#   ats-killchain.yml         — Rule 7:  Gesture injection during banking
+#   a11y-overlay-chain.yml    — Rule 8:  Full overlay trigger pipeline
+#
+# Combined file (rules 9-24, frontier behavioral patterns):
+#   frontier.yml              — Rules 9-24: All frontier Sigma rules
+#
+# RAT behavioral rules (rules 25-34, RAT capability detection):
+#   rat-behavioral.yml        — Rules 25-34: Camera, audio, screen, TOTP,
+#                                USSD, touch, notifications, wipe, AV-kill, contacts
+#
+# ============================================================================
+# COVERAGE BY MITRE ATT&CK MOBILE TECHNIQUE
+# ============================================================================
+#
+# T1027 (Obfuscated Files)         — Rule 16
+# T1090 (Proxy)                    — Rule 13
+# T1398 (Boot/Logon Init Scripts)  — Rules 20, 21, 22
+# T1407 (Download New Code)        — Rule 4
+# T1418 (Software Discovery)       — Rules 9, 17
+# T1437 (Application Layer Proto)  — Rules 2, 5
+# T1513 (Screen Capture)           — Rule 11
+# T1517 (Access Notifications)     — Rules 6, 8, 14, 19, 24
+# T1573 (Encrypted Channel)        — Rule 15
+# T1582 (SMS Control)              — Rule 1
+# T1626 (Abuse Elevation Control)  — Rules 3, 7, 8, 10, 18
+# T1636 (Contact Discovery)        — Rule 23
+# T1646 (Exfil Over C2)            — Rule 12
+#
+# ============================================================================
+# COVERAGE BY SEVERITY LEVEL
+# ============================================================================
+#
+# critical (12 rules): 3, 4, 6, 7, 8, 10, 11, 12, 14, 18, 19, 24
+# high     (10 rules): 1, 2, 5, 9, 13, 15, 20, 21, 22, 23
+# medium   ( 2 rules): 16, 17
+#
+# ============================================================================
+# USAGE
+# ============================================================================
+#
+# Individual rule files can be loaded directly into Sigma-compatible
+# SIEM backends. The frontier.yml uses YAML document separators (---)
+# between rules for multi-document parsing.
+#
+# Validation:
+#   sigma check sms-contentresolver.yml
+#   sigma check frontier.yml
+#
+# Conversion example (Splunk):
+#   sigma convert -t splunk sms-contentresolver.yml
+#   sigma convert -t splunk frontier.yml
+#
+# Full corpus scan against APK telemetry:
+#   for f in *.yml; do sigma check "$f"; done

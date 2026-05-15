@@ -1,0 +1,43 @@
+title: SkyWeather Forecast - DexClassLoader Anti-Forensics Pattern
+id: d7a1f3e0-1003-4a5b-9e2c-skyweather-dcl-af
+status: experimental
+description: |
+  Detects the modular loader anti-forensics pattern: DexClassLoader loads a
+  DEX file (update_cache.dex), then deletes it immediately after loading.
+  File exists only during the load window — forensics on disk sees nothing.
+  Only memory carving or DexClassLoader.<init> hooking recovers the payload.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1407, T1070.004
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.defense_evasion
+  - attack.t1407
+  - attack.t1070.004
+logsource:
+  category: file_event
+  product: android
+detection:
+  dex_write:
+    file_path|endswith: 'update_cache.dex'
+    event_type: 'create'
+  dex_load:
+    # Frida monitor or logcat event for DexClassLoader init
+    logcat_tag|contains:
+      - 'DexClassLoader'
+      - 'dalvikvm'
+    message|contains: 'update_cache.dex'
+  dex_delete:
+    file_path|endswith: 'update_cache.dex'
+    event_type: 'delete'
+  telemetry_pattern:
+    # Specimen telemetry log line
+    message|contains|all:
+      - '[stealer.loader]'
+      - 'payload_loaded'
+  condition: (dex_write and dex_delete) or (dex_load and dex_delete) or telemetry_pattern
+  timeframe: 5m
+falsepositives:
+  - Plugin frameworks that load and clean up DEX files (rare with exact filename)
+level: critical

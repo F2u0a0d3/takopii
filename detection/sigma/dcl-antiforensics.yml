@@ -1,0 +1,29 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 4
+# DexClassLoader Load + File Deletion (Anti-Forensics)
+
+title: DexClassLoader Instantiation Followed by File Deletion
+id: takopii-dcl-antiforensics-001
+status: experimental
+description: Detects DexClassLoader loading external DEX followed by source file deletion within 30 seconds
+logsource:
+    product: android
+    category: runtime
+detection:
+    dcl_load:
+        api_call: 'dalvik.system.DexClassLoader.<init>'
+    file_delete:
+        api_call: 'java.io.File.delete'
+        path|contains:
+            - '.dex'
+            - '.cache_data'
+            - '.update_cache'
+            - '.oat_cache'
+    timeframe: 30s
+    condition: dcl_load | file_delete
+level: critical
+tags:
+    - attack.defense_evasion
+    - attack.t1407
+falsepositives:
+    - Hot-fix frameworks (Tinker, Robust) — rare on banking apps

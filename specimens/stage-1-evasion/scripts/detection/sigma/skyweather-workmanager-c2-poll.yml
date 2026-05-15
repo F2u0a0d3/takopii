@@ -1,0 +1,37 @@
+title: SkyWeather Forecast - WorkManager C2 Polling Pattern
+id: d7a1f3e0-1002-4a5b-9e2c-skyweather-workmanager
+status: experimental
+description: |
+  Detects periodic WorkManager-driven C2 polling at the Android platform floor
+  interval (15 minutes). The specimen's SyncTask fires every 900000ms,
+  connecting to the same endpoint each cycle. Pattern: repeated same-destination
+  network calls from a non-foregrounded app at ~15-minute intervals.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1398
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.persistence
+  - attack.t1398
+logsource:
+  category: process_creation
+  product: android
+detection:
+  workmanager_dispatch:
+    logcat_tag: 'WM-WorkerWrapper'
+    message|contains:
+      - 'SyncTask'
+      - 'com.skyweather.forecast'
+  network_beacon:
+    destination_host|re: '(127\.0\.0\.1|10\.0\.2\.2|192\.168\.\d+\.\d+|10\.\d+\.\d+\.\d+)'
+    destination_path|contains: '/api/v1/beacon'
+  periodic_pattern:
+    # 15-minute polling floor: events repeating at ~900000ms intervals
+    logcat_tag: 'WM-WorkSpec'
+    message|contains: 'period_start_time'
+  condition: workmanager_dispatch or (network_beacon and periodic_pattern)
+falsepositives:
+  - Legitimate weather apps polling forecast APIs at periodic intervals
+  - Apps using WorkManager for standard background sync (lack /beacon endpoint)
+level: high

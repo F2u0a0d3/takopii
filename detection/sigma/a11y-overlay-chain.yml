@@ -1,0 +1,36 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 8
+# Accessibility Service Overlay Trigger Chain
+
+title: A11y Service Foreground Detection to Overlay Creation Pipeline
+id: takopii-a11y-overlay-chain-001
+status: experimental
+description: |
+    Detects the full BankerA11yService overlay trigger chain:
+    TYPE_WINDOW_STATE_CHANGED → package match → WindowManager.addView with overlay type.
+    Includes 200-500ms delay pattern between foreground detection and overlay creation.
+logsource:
+    product: android
+    category: accessibility
+detection:
+    foreground_change:
+        event_type: 'TYPE_WINDOW_STATE_CHANGED'
+        source_package|not:
+            - 'com.android.systemui'
+            - 'com.android.launcher'
+    overlay_creation:
+        api_call: 'WindowManager.addView'
+        window_type|contains:
+            - 'TYPE_APPLICATION_OVERLAY'
+            - 'TYPE_ACCESSIBILITY_OVERLAY'
+        creator_package|not: foreground_change.source_package
+    keylog_start:
+        event_type: 'TYPE_VIEW_TEXT_CHANGED'
+        listener_package: overlay_creation.creator_package
+    timeframe: 5s
+    condition: foreground_change | (overlay_creation or keylog_start)
+level: critical
+tags:
+    - attack.credential_access
+    - attack.t1626
+    - attack.t1517

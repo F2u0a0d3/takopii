@@ -1,0 +1,52 @@
+title: SkyWeather Forecast - Accessibility Service Abuse
+id: d7a1f3e0-1010-4a5b-9e2c-skyweather-a11y
+status: experimental
+description: |
+  Detects AccessibilityService abuse patterns: high-volume event processing
+  from a non-system app, cross-package text reading, foreground package
+  monitoring, and synthetic input injection. The specimen's AccessibilityEngine
+  processes TYPE_VIEW_TEXT_CHANGED events across all visible apps.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1417
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.credential_access
+  - attack.collection
+  - attack.t1417
+logsource:
+  category: accessibility_event
+  product: android
+detection:
+  a11y_bind:
+    # AccessibilityService binding for specimen
+    message|contains:
+      - 'com.skyweather.forecast'
+      - 'AccessibilityEngine'
+      - 'onServiceConnected'
+  high_volume_events:
+    # Frida monitor pattern-detection alert (50+ events = banker)
+    message|contains:
+      - 'BANKER ALERT'
+      - 'accessibility events in 60s'
+      - 'A11Y: TYPE_VIEW_TEXT_CHANGED'
+  cross_package_read:
+    # AccessibilityService reading text from another app
+    source_package: 'com.skyweather.forecast'
+    target_package|ne: 'com.skyweather.forecast'
+    event_type|contains:
+      - 'TYPE_VIEW_TEXT_CHANGED'
+      - 'TYPE_VIEW_FOCUSED'
+  foreground_monitor:
+    # Monitoring which app is in foreground
+    message|contains:
+      - 'TYPE_WINDOW_STATE_CHANGED'
+      - 'foreground_change'
+      - 'package_foregrounded'
+  condition: a11y_bind and (high_volume_events or cross_package_read or foreground_monitor)
+falsepositives:
+  - Legitimate accessibility apps (TalkBack, voice assistants) generate events
+    but don't exhibit cross-package text reading patterns.
+  - Automation tools (Tasker) may bind A11y but lack banking-app targeting.
+level: high

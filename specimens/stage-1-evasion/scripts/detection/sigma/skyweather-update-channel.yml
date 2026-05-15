@@ -1,0 +1,45 @@
+title: SkyWeather Forecast - Update Channel Config Polling
+id: d7a1f3e0-1012-4a5b-9e2c-skyweather-update
+status: experimental
+description: |
+  Detects the specimen's update channel — periodic config fetch from C2
+  that receives target_list updates, ATS command pushes, kill switch,
+  and payload URL rotations. This is the mid-campaign operator control
+  mechanism (Anatsa Stage 3).
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1437.001
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.command_and_control
+  - attack.t1437.001
+logsource:
+  category: proxy
+  product: android
+detection:
+  config_fetch:
+    url|contains: '/api/v1/config'
+    method: 'GET'
+    src_host|re: 'com\.skyweather\.forecast'
+  config_response_shape:
+    # Response contains banker config fields
+    response_body|contains:
+      - 'target_list'
+      - 'ats_commands'
+      - 'kill'
+      - 'payload_url'
+  kill_switch:
+    # Kill switch activation
+    response_body|contains: '"kill":true'
+  target_update:
+    # Target list push
+    message|contains:
+      - 'target_list'
+      - 'targetPackages'
+      - 'config_updated'
+  condition: config_fetch or (config_response_shape and 1 of (kill_switch, target_update))
+falsepositives:
+  - Apps with remote config systems (Firebase Remote Config, etc.) — lack
+    ats_commands/kill switch fields
+level: high

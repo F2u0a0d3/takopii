@@ -1,0 +1,605 @@
+# Takopii Framework — Sigma Detection Rules (Frontier)
+# Source: specimens/BLUETEAM-DETECTION.md — Rules 9-24
+# All frontier behavioral Sigma rules combined
+# Covers: multi-axis sensor, TYPE_ACCESSIBILITY_OVERLAY, MediaProjection,
+#   NFC relay, SOCKS5, SSO auto-approve, TEE, SecureRandom, Play Integrity,
+#   MediaProjection consent, BIP39 scrape, ContentProvider init, silent
+#   notification, boot receiver chain, contact exfil, screen reader ATS tree traversal
+
+# ============================================================================
+# Rule 9: MultiAxisSensor Emulation Detection
+# ============================================================================
+
+title: Multi-Axis Sensor Flat Data Indicating Emulator or Sandbox
+id: takopii-multiaxis-sensor-emulation-001
+status: experimental
+description: |
+    Detects emulator/sandbox environment via sensor behavioral analysis.
+    MultiAxisSensor.evaluate() checks 5 properties:
+      1. Sensor variance = 0 (flat accelerometer/gyroscope)
+      2. Gravity magnitude outside 8.31-11.31 m/s^2 range
+      3. Accelerometer and gyroscope data uncorrelated
+      4. Battery exactly 50% with AC charging (emulator default)
+      5. Battery temperature = 0 (emulator returns 0)
+    An app performing these checks before activating sensitive behavior
+    is an anti-analysis signal regardless of outcome.
+logsource:
+    product: android
+    category: sensor
+detection:
+    sensor_registration:
+        api_call: 'SensorManager.registerListener'
+        sensor_type|contains:
+            - 'TYPE_ACCELEROMETER'
+            - 'TYPE_GYROSCOPE'
+    battery_query:
+        api_call|contains: 'BatteryManager.getIntProperty'
+    activation_decision:
+        api_call|contains:
+            - 'EnvironmentGate.evaluate'
+            - 'MultiAxisSensor.evaluate'
+    timeframe: 10s
+    condition: sensor_registration and (battery_query or activation_decision)
+level: high
+tags:
+    - attack.defense_evasion
+    - attack.t1418
+falsepositives:
+    - Fitness apps that check sensor presence for feature gating
+    - Games that verify hardware capabilities at startup
+
+---
+
+# ============================================================================
+# Rule 10: A11yOverlay2032 Creation Timing
+# ============================================================================
+
+title: TYPE_ACCESSIBILITY_OVERLAY Creation After Window State Change
+id: takopii-a11y-overlay-2032-timing-001
+status: experimental
+description: |
+    Detects overlay creation with TYPE_ACCESSIBILITY_OVERLAY (window type 2032)
+    within 500ms of TYPE_WINDOW_STATE_CHANGED event. The 500ms delay is the
+    specimen's wait-for-render pattern — banking app must finish loading before
+    overlay covers it.
+logsource:
+    product: android
+    category: accessibility
+detection:
+    window_change:
+        event_type: 'TYPE_WINDOW_STATE_CHANGED'
+        source_package|contains:
+            - 'bank'
+            - 'finance'
+            - 'dvbank'
+    overlay_2032:
+        api_call: 'WindowManager.addView'
+        window_type: 2032
+    timeframe: 1s
+    condition: window_change | overlay_2032
+level: critical
+tags:
+    - attack.credential_access
+    - attack.t1626
+
+---
+
+# ============================================================================
+# Rule 11: HiddenVnc Frame Capture
+# ============================================================================
+
+title: MediaProjection Screen Capture from Non-System App
+id: takopii-hidden-vnc-frame-capture-001
+status: experimental
+description: |
+    Detects createVirtualDisplay from non-system app with periodic image
+    acquisition (2fps pattern from HiddenVnc specimen). Combined with
+    AccessibilityService gesture dispatch = hidden remote control.
+logsource:
+    product: android
+    category: media
+detection:
+    projection_start:
+        api_call: 'MediaProjection.createVirtualDisplay'
+        caller_is_system: false
+    frame_capture:
+        api_call: 'ImageReader.acquireLatestImage'
+        frequency_per_second|gte: 1
+    gesture_dispatch:
+        api_call: 'AccessibilityService.dispatchGesture'
+    timeframe: 30s
+    condition: projection_start and frame_capture
+level: critical
+tags:
+    - attack.collection
+    - attack.t1513
+falsepositives:
+    - Screen recording apps (expect user-visible recording indicator)
+    - Screen mirroring / casting apps (Chromecast, Miracast)
+
+---
+
+# ============================================================================
+# Rule 12: NfcRelay APDU-to-Network
+# ============================================================================
+
+title: NFC APDU Relay to Network Endpoint
+id: takopii-nfc-relay-apdu-network-001
+status: experimental
+description: |
+    Detects NFC APDU command relay: processCommandApdu receives APDU from
+    NFC reader -> forwards to TCP socket -> returns response from relay server.
+    Flag SELECT_PPSE ("2PAY.SYS.DDF01") — payment system entry point.
+logsource:
+    product: android
+    category: nfc
+detection:
+    hce_command:
+        api_call: 'HostApduService.processCommandApdu'
+    network_relay:
+        api_call|contains:
+            - 'Socket.connect'
+            - 'DataOutputStream.write'
+        destination|not:
+            - 'localhost'
+    timeframe: 2s
+    condition: hce_command | network_relay
+level: critical
+tags:
+    - attack.fraud
+    - attack.t1646
+falsepositives:
+    - Payment terminal emulators used for development
+    - NFC testing frameworks
+
+---
+
+# ============================================================================
+# Rule 13: ResidentialProxy SOCKS5 Listener
+# ============================================================================
+
+title: SOCKS5 Server Listener from Non-VPN Application
+id: takopii-residential-proxy-socks5-001
+status: experimental
+description: |
+    Detects ServerSocket.accept on port 1080 from non-VPN app with
+    bidirectional data relay pattern. Residential proxy monetization:
+    $20-80/month per infected device on proxy marketplace.
+logsource:
+    product: android
+    category: network
+detection:
+    server_bind:
+        api_call: 'ServerSocket.<init>'
+        port|contains:
+            - '1080'
+            - '1081'
+    accept_connection:
+        api_call: 'ServerSocket.accept'
+        caller_package|not:
+            - 'com.android.vpndialogs'
+            - 'com.wireguard.android'
+    bidirectional_relay:
+        api_call|contains: 'InputStream.read'
+        peer_api|contains: 'OutputStream.write'
+    timeframe: 60s
+    condition: server_bind and accept_connection
+level: high
+tags:
+    - attack.proxy
+    - attack.t1090
+
+---
+
+# ============================================================================
+# Rule 14: SsoHijacker Auto-Approve
+# ============================================================================
+
+title: Accessibility Auto-Approve on SSO MFA Prompt
+id: takopii-sso-hijacker-auto-approve-001
+status: experimental
+description: |
+    Detects AccessibilityService performAction(ACTION_CLICK) on SSO app
+    (Microsoft Authenticator, Okta, Duo, Google Authenticator, Authy)
+    within 500ms of notification — Vespertine sub-500ms approval pattern.
+    User sees notification briefly flash then disappear.
+logsource:
+    product: android
+    category: accessibility
+detection:
+    sso_notification:
+        event_type: 'onNotificationPosted'
+        source_package|contains:
+            - 'com.azure.authenticator'
+            - 'com.okta.android'
+            - 'com.duosecurity.duomobile'
+            - 'com.google.android.apps.authenticator2'
+            - 'com.authy.authy'
+    auto_click:
+        api_call: 'AccessibilityNodeInfo.performAction'
+        action: 'ACTION_CLICK'
+        text_content|contains:
+            - 'approve'
+            - 'allow'
+            - 'confirm'
+            - 'verify'
+            - 'accept'
+            - "it's me"
+    timeframe: 1s
+    condition: sso_notification | auto_click
+level: critical
+tags:
+    - attack.credential_access
+    - attack.t1517
+
+---
+
+# ============================================================================
+# Rule 15: TeeOffload Key-Encrypt-Network Chain
+# ============================================================================
+
+title: TEE Key Generation Followed by Encrypt and Network POST
+id: takopii-tee-offload-key-encrypt-net-001
+status: experimental
+description: |
+    Detects Drelock TEE offload pattern: AndroidKeyStore key generation +
+    AES-GCM encryption + network POST within 60 seconds. TEE-backed keys
+    are hardware-bound — Frida cannot extract them, only capture plaintext
+    at the Cipher.doFinal boundary.
+logsource:
+    product: android
+    category: crypto
+detection:
+    key_gen:
+        api_call|contains: 'KeyGenerator.init'
+        params|contains: 'AndroidKeyStore'
+    cipher_encrypt:
+        api_call: 'Cipher.doFinal'
+        mode: 'ENCRYPT_MODE'
+        algorithm|contains:
+            - 'AES/GCM'
+            - 'AES_256'
+    network_post:
+        method: 'POST'
+        content_type: 'application/octet-stream'
+    timeframe: 60s
+    condition: key_gen and cipher_encrypt and network_post
+level: high
+tags:
+    - attack.defense_evasion
+    - attack.t1573
+
+---
+
+# ============================================================================
+# Rule 16: PerBuildObfuscation Seed Pattern
+# ============================================================================
+
+title: SecureRandom Initialization with Timestamp Seed
+id: takopii-perbuild-obfuscation-seed-001
+status: experimental
+description: |
+    Detects per-build obfuscation pattern: SecureRandom initialized with
+    System.currentTimeMillis as seed + Fisher-Yates shuffle + multi-layer
+    encode. Apex pattern — each APK build produces unique decoder bytecode.
+logsource:
+    product: android
+    category: crypto
+detection:
+    rng_init:
+        api_call: 'SecureRandom.<init>'
+        seed_source|contains: 'currentTimeMillis'
+    multi_layer_encode:
+        api_call|contains:
+            - 'xorLayer'
+            - 'rotLayer'
+            - 'addLayer'
+            - 'shuffleLayer'
+    timeframe: 5s
+    condition: rng_init and multi_layer_encode
+level: medium
+tags:
+    - attack.defense_evasion
+    - attack.t1027
+
+---
+
+# ============================================================================
+# Rule 17: PlayIntegrityProbe Recon
+# ============================================================================
+
+title: PackageManager Query for Play Integrity Components
+id: takopii-play-integrity-probe-001
+status: experimental
+description: |
+    Detects utility app scanning for Play Integrity packages
+    (play.core.integrity indicators). Reconnaissance before banking
+    session determines whether device passes Play Integrity check.
+logsource:
+    product: android
+    category: package_manager
+detection:
+    pm_query:
+        api_call|contains:
+            - 'PackageManager.getPackageInfo'
+            - 'PackageManager.resolveService'
+        package_queried|contains:
+            - 'com.google.android.gms'
+            - 'play.core.integrity'
+            - 'play.integrity'
+    caller_not_gms:
+        caller_package|not: 'com.google.android.gms'
+    condition: pm_query and caller_not_gms
+level: medium
+tags:
+    - attack.discovery
+    - attack.t1418
+falsepositives:
+    - Apps that legitimately use Play Integrity API for device attestation
+
+---
+
+# ============================================================================
+# Rule 18: MediaProjectionAutoConsent A11y Click
+# ============================================================================
+
+title: Accessibility Auto-Click on MediaProjection Consent Dialog
+id: takopii-mediaprojection-autoconsent-001
+status: experimental
+description: |
+    Detects AccessibilityService performAction(ACTION_CLICK) on SystemUI
+    MediaProjection consent dialog within 200ms of dialog appearance.
+    Sub-200ms response time indicates automated click — human minimum is >400ms.
+logsource:
+    product: android
+    category: accessibility
+detection:
+    consent_dialog:
+        event_type: 'TYPE_WINDOW_STATE_CHANGED'
+        source_package: 'com.android.systemui'
+        class_name|contains: 'MediaProjectionPermissionActivity'
+    auto_click:
+        api_call: 'AccessibilityNodeInfo.performAction'
+        action: 'ACTION_CLICK'
+        target_package: 'com.android.systemui'
+        text_content|contains:
+            - 'Start now'
+            - 'Start'
+            - 'Allow'
+    timeframe: 500ms
+    condition: consent_dialog | auto_click
+level: critical
+tags:
+    - attack.defense_evasion
+    - attack.t1626
+
+---
+
+# ============================================================================
+# Rule 19: NoteAppScraper BIP39 Detection
+# ============================================================================
+
+title: Accessibility Text Extraction from Note App with BIP39 Word Density
+id: takopii-noteapp-scraper-bip39-001
+status: experimental
+description: |
+    Detects AccessibilityService text extraction from note-taking apps
+    (Google Keep, Samsung Notes, OneNote, etc.) where extracted text
+    has high BIP39 mnemonic word density (>80% in 12/24-word window).
+    Perseus pattern — crypto seed phrase scraping.
+logsource:
+    product: android
+    category: accessibility
+detection:
+    note_app_foreground:
+        event_type: 'TYPE_WINDOW_STATE_CHANGED'
+        source_package|contains:
+            - 'com.google.android.keep'
+            - 'com.samsung.android.app.notes'
+            - 'com.microsoft.office.onenote'
+            - 'com.evernote'
+            - 'md.obsidian'
+    text_extraction:
+        api_call: 'AccessibilityNodeInfo.getText'
+    bip39_density:
+        text_content|re: '\b(abandon|ability|able|about|above|absent|absorb|abstract|absurd|abuse)\b'
+    timeframe: 10s
+    condition: note_app_foreground and text_extraction
+level: critical
+tags:
+    - attack.collection
+    - attack.t1517
+
+---
+
+# ============================================================================
+# Rule 20: EarlyInitProvider Pre-Application Init
+# ============================================================================
+
+title: ContentProvider Pre-Application Initialization with String Decode
+id: takopii-early-init-provider-001
+status: experimental
+description: |
+    Detects ContentProvider.onCreate executing before Application.onCreate
+    with string decoding (StringDecoder) and environment gate evaluation.
+    ContentProvider init hook pattern — no-op provider with no real data
+    operations used solely as a pre-Application init entry point.
+logsource:
+    product: android
+    category: runtime
+detection:
+    provider_oncreate:
+        api_call: 'ContentProvider.onCreate'
+    string_decode:
+        api_call|contains:
+            - 'StringDecoder.xorDecode'
+            - 'StringDecoder.aesDecrypt'
+    env_check:
+        api_call|contains:
+            - 'EnvironmentGate.evaluate'
+            - 'AntiEmulator.check'
+    before_application:
+        sequence: 'ContentProvider.onCreate BEFORE Application.onCreate'
+    condition: provider_oncreate and (string_decode or env_check)
+level: high
+tags:
+    - attack.persistence
+    - attack.t1398
+
+---
+
+# ============================================================================
+# Rule 21: StealthFgService Low-Visibility Notification
+# ============================================================================
+
+title: Foreground Service with Silent Notification Channel
+id: takopii-stealth-fg-service-001
+status: experimental
+description: |
+    Detects foreground service started with low-visibility notification:
+    silent channel (no sound/vibrate), min-priority, or hidden notification.
+    Banker FG service uses benign notification text as cover for persistence.
+logsource:
+    product: android
+    category: service
+detection:
+    fg_start:
+        api_call: 'Service.startForeground'
+    low_visibility:
+        notification_importance|lte: 1
+        notification_sound: false
+        notification_vibrate: false
+    boot_chain:
+        preceding_event: 'BOOT_COMPLETED'
+    timeframe: 60s
+    condition: fg_start and (low_visibility or boot_chain)
+level: high
+tags:
+    - attack.persistence
+    - attack.t1398
+
+---
+
+# ============================================================================
+# Rule 22: BootReceiver Persistence Chain
+# ============================================================================
+
+title: Boot Receiver to FG Service to Network Activity Chain
+id: takopii-boot-receiver-chain-001
+status: experimental
+description: |
+    Detects BOOT_COMPLETED receiver triggering foreground service start
+    followed by network activity within 60 seconds of device boot.
+    Includes LOCKED_BOOT_COMPLETED (direct-boot aware) and
+    MY_PACKAGE_REPLACED (survives app updates) variants.
+logsource:
+    product: android
+    category: receiver
+detection:
+    boot_event:
+        intent_action|contains:
+            - 'BOOT_COMPLETED'
+            - 'LOCKED_BOOT_COMPLETED'
+            - 'MY_PACKAGE_REPLACED'
+    fg_service_start:
+        api_call|contains:
+            - 'startForegroundService'
+            - 'startService'
+    network_activity:
+        method|contains:
+            - 'GET'
+            - 'POST'
+    timeframe: 60s
+    condition: boot_event | fg_service_start | network_activity
+level: high
+tags:
+    - attack.persistence
+    - attack.t1398
+falsepositives:
+    - Messaging apps that reconnect to push servers on boot
+    - Weather apps that refresh on boot (check permission combo)
+
+---
+
+# ============================================================================
+# Rule 23: ContactHarvester Bulk Query + Exfil
+# ============================================================================
+
+title: Contact List Query Followed by Network Exfiltration
+id: takopii-contact-harvester-bulk-001
+status: experimental
+description: |
+    Detects ContentResolver query on ContactsContract from non-contacts app
+    followed by network POST within 120 seconds. FluBot pattern: harvest
+    contacts for SMS worm spreading + social graph intelligence.
+logsource:
+    product: android
+    category: content_resolver
+detection:
+    contacts_query:
+        uri|contains:
+            - 'content://com.android.contacts'
+            - 'ContactsContract'
+        caller_package|not:
+            - 'com.google.android.contacts'
+            - 'com.samsung.android.contacts'
+            - 'com.android.contacts'
+    network_exfil:
+        method: 'POST'
+        body|contains: 'phone'
+    timeframe: 120s
+    condition: contacts_query | network_exfil
+level: high
+tags:
+    - attack.collection
+    - attack.t1636
+
+---
+
+# ============================================================================
+# Rule 24: ScreenReader Full-Tree Traversal During Banking Session
+# ============================================================================
+
+title: Full Accessibility Tree Traversal During Banking App Session
+id: tak-screenreader-tree-traversal
+status: experimental
+description: >
+    Detects when an accessibility service performs deep tree traversal
+    (getRootInActiveWindow + >50 getChild calls) while a banking app
+    is in foreground. ScreenReader.extractAllText() recurses the entire
+    view hierarchy to read balances, IBANs, and screen-state text.
+    Normal A11y screen readers don't traverse 50+ nodes in <200ms bursts.
+references:
+    - specimens/stage-1-evasion/../core/ScreenReader.kt
+    - ANALYSIS.md §5.1 — Accessibility Service Abuse
+    - MITRE ATT&CK T1517 — Access Notifications
+author: Takopii Detection Engineering
+date: 2026/05/12
+logsource:
+    product: android
+    service: frida-monitor
+detection:
+    tree_root:
+        EventType: "getRootInActiveWindow"
+        SourcePackage|contains:
+            - "skyweather"
+            - "docreader"
+    deep_traversal:
+        EventType: "getChild"
+        CallCount|gte: 50
+    banking_foreground:
+        ForegroundPackage|contains:
+            - "dvbank"
+            - "bank"
+            - "finance"
+            - "pago"
+    condition: tree_root and deep_traversal and banking_foreground
+    timeframe: 2s
+falsepositives:
+    - Legitimate accessibility screen readers (TalkBack) — but these don't
+      target specific banking-related view IDs in their queries
+    - Accessibility testing frameworks (Espresso) during development
+level: critical
+tags:
+    - attack.collection
+    - attack.t1517

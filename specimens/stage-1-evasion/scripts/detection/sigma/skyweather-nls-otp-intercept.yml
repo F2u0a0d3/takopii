@@ -1,0 +1,49 @@
+title: SkyWeather Forecast - Notification Listener OTP Interception
+id: d7a1f3e0-1005-4a5b-9e2c-skyweather-nls
+status: experimental
+description: |
+  Detects NotificationListenerService-based OTP interception. The specimen's
+  NotificationEngine receives all system notifications, scans for OTP patterns
+  (4-8 digit codes), and captures matching OTP codes from banking app
+  push notifications and SMS preview text.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1517
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.credential_access
+  - attack.collection
+  - attack.t1517
+logsource:
+  category: notification_event
+  product: android
+detection:
+  nls_connection:
+    # NotificationListenerService bind
+    logcat_tag: 'NotificationListenerService'
+    message|contains:
+      - 'com.skyweather.forecast'
+      - 'NotificationEngine'
+      - 'onListenerConnected'
+  otp_extraction:
+    # OTP pattern match in notification text
+    message|contains:
+      - 'otp_nls'
+      - 'otp_notification'
+      - 'OTP extracted'
+  telemetry_nls:
+    # Specimen telemetry
+    message|contains|all:
+      - '[stealer.notification]'
+      - 'notification_posted'
+  credential_event:
+    # Credential event with NLS source
+    message|contains:
+      - '"e":"otp_nls"'
+      - 'otp_nls'
+  condition: (nls_connection and otp_extraction) or telemetry_nls or credential_event
+falsepositives:
+  - Notification management apps with NLS binding (mitigated by OTP extraction)
+  - Accessibility services reading notification content (different mechanism)
+level: high

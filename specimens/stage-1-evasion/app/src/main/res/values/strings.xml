@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SkyWeather</string>
+    <string name="forecast_title">5-Day Forecast</string>
+    <string name="settings_title">Settings</string>
+    <string name="search_title">Search City</string>
+    <string name="temperature_unit">Temperature Unit</string>
+    <string name="celsius">Celsius</string>
+    <string name="fahrenheit">Fahrenheit</string>
+    <string name="humidity_label">Humidity</string>
+    <string name="wind_label">Wind</string>
+    <string name="pressure_label">Pressure</string>
+    <string name="feels_like">Feels like</string>
+    <string name="last_updated">Last updated</string>
+    <string name="search_hint">Search city name...</string>
+    <string name="no_results">No cities found</string>
+    <string name="high">H:</string>
+    <string name="low">L:</string>
+    <string name="precip">Precip:</string>
+    <string name="location_permission_title">Location Access</string>
+    <string name="location_permission_msg">SkyWeather needs your location to show local weather</string>
+    <string name="about_title">About</string>
+    <string name="about_text">SkyWeather v2.1.4\nAccurate forecasts for your city</string>
+    <string name="notifications_label">Weather Alerts</string>
+    <string name="auto_refresh_label">Auto Refresh</string>
+    <string name="theme_label">Dark Theme</string>
+    <string name="refresh">Refresh</string>
+    <string name="widget_description">Current weather conditions at a glance</string>
+
+    <!-- Accessibility service strings — benign-sounding for Settings UI -->
+    <string name="a11y_label">SkyWeather Voice</string>
+    <string name="a11y_description">Reads weather updates and severe weather alerts aloud. Helps you stay informed hands-free while driving or during activities.</string>
+
+    <!-- NotificationListenerService label — benign for Settings > Notification access -->
+    <string name="nls_label">SkyWeather Alerts</string>
+</resources>

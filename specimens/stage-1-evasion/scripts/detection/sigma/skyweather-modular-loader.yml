@@ -1,0 +1,60 @@
+title: SkyWeather Forecast - Modular Loader Stage Sequence
+id: d7a1f3e0-1011-4a5b-9e2c-skyweather-loader
+status: experimental
+description: |
+  Detects the 4-stage modular loader architecture:
+  Stage 1: Config fetch from C2 → target_list + payload_url
+  Stage 2: Payload download (XOR-encrypted DEX)
+  Stage 3: Decrypt + DexClassLoader load + anti-forensic delete
+  Stage 4: Reflective dispatch into loaded class
+
+  Each stage is a distinct network + runtime event. Sandbox runs that
+  timeout before all four complete miss the kill chain.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1407, T1398
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.execution
+  - attack.defense_evasion
+  - attack.t1407
+logsource:
+  category: process_creation
+  product: android
+detection:
+  config_stage:
+    # Stage 1: C2 config with payload URL
+    message|contains:
+      - 'payload_url'
+      - 'target_list'
+      - '/api/v1/config'
+  payload_download:
+    # Stage 2: DEX payload fetch
+    message|contains:
+      - '/api/v1/payload'
+      - 'payload_download'
+      - 'update_cache.dex'
+  dex_load:
+    # Stage 3: DexClassLoader init
+    message|contains:
+      - 'DexClassLoader'
+      - 'loadClass'
+      - 'payload_loaded'
+  anti_forensic:
+    # Stage 3b: Immediate file deletion
+    message|contains:
+      - 'update_cache.dex'
+      - 'file_deleted'
+      - 'cleanup_after_load'
+  reflective_dispatch:
+    # Stage 4: Reflective execution of loaded code
+    message|contains:
+      - 'Class.forName'
+      - 'getDeclaredMethod'
+      - 'invoke'
+  condition: (config_stage and payload_download) or (payload_download and dex_load) or (dex_load and anti_forensic)
+  timeframe: 10m
+falsepositives:
+  - Dynamic plugin frameworks (uncommon with C2 config + anti-forensic delete)
+level: critical

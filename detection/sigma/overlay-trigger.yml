@@ -1,0 +1,25 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 3
+# Accessibility Overlay Trigger
+
+title: Accessibility Service Overlay Window Creation
+id: takopii-overlay-trigger-001
+status: experimental
+description: Detects WindowManager.addView with overlay window type from AccessibilityService context
+logsource:
+    product: android
+    category: accessibility
+detection:
+    selection:
+        event_type: 'TYPE_WINDOW_STATE_CHANGED'
+    overlay_creation:
+        api_call: 'WindowManager.addView'
+        window_type|contains:
+            - 'TYPE_APPLICATION_OVERLAY'
+            - 'TYPE_ACCESSIBILITY_OVERLAY'
+    timeframe: 5s
+    condition: selection | overlay_creation
+level: critical
+tags:
+    - attack.credential_access
+    - attack.t1626

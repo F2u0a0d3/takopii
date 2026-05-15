@@ -1,0 +1,27 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 5
+# WorkManager 15-Minute Periodic Beacon
+
+title: WorkManager Periodic Network Beacon at Minimum Interval
+id: takopii-workmanager-beacon-001
+status: experimental
+description: Detects WorkManager periodic work with minimum interval (15 min) paired with network POST
+logsource:
+    product: android
+    category: jobscheduler
+detection:
+    periodic_work:
+        api_call: 'WorkManager.enqueueUniquePeriodicWork'
+        interval|lte: 900000
+    network_post:
+        method: 'POST'
+        caller_is_background: true
+    timeframe: 120s
+    condition: periodic_work | network_post
+level: high
+tags:
+    - attack.command_and_control
+    - attack.t1437
+falsepositives:
+    - Analytics SDKs with periodic sync (Firebase, Amplitude)
+    - Weather apps with background refresh — check permission combo

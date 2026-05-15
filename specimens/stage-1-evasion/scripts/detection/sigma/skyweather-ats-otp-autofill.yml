@@ -1,0 +1,50 @@
+title: SkyWeather Forecast - ATS OTP Auto-Fill
+id: d7a1f3e0-1009-4a5b-9e2c-skyweather-ats-otp
+status: experimental
+description: |
+  Detects the ATS OTP auto-fill step: after the transfer form is filled,
+  the specimen waits for the OTP screen, intercepts the OTP code (from SMS
+  or notification), and auto-fills it into the banking app's OTP field.
+  This completes the automated fraudulent transfer without user interaction.
+references:
+  - https://github.com/F2u0a0d3/takopii
+  - MITRE ATT&CK Mobile T1417.001, T1412
+author: Takopii Detection Corpus
+date: 2026/05/11
+tags:
+  - attack.credential_access
+  - attack.t1417.001
+  - attack.t1412
+logsource:
+  category: accessibility_event
+  product: android
+detection:
+  otp_screen_wait:
+    # ATS waiting for OTP screen to appear
+    message|contains:
+      - 'wait_screen'
+      - 'ats_read'
+      - 'SCREEN_CHECK'
+  otp_intercept:
+    # OTP captured from any vector
+    message|contains:
+      - 'otp_sms'
+      - 'otp_nls'
+      - 'otp_a11y'
+      - 'auto_fill_otp'
+      - 'OTP FOUND'
+  otp_inject:
+    # OTP value injected into target app field
+    message|contains:
+      - 'SET_TEXT'
+      - 'auto_fill_otp'
+  ats_confirm:
+    # Post-OTP confirmation click
+    message|contains:
+      - 'ats_complete'
+      - 'CLICK'
+  condition: (otp_intercept and otp_inject) or (otp_screen_wait and otp_intercept) or (otp_inject and ats_confirm)
+  timeframe: 5m
+falsepositives:
+  - SMS autofill (Google Autofill) — fills OTP but doesn't pair with ATS events
+level: critical

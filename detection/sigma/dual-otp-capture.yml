@@ -1,0 +1,24 @@
+# Takopii Framework — Sigma Detection Rules
+# Source: specimens/BLUETEAM-DETECTION.md — Rule 6
+# Dual OTP Capture (NLS + SMS from Same Package)
+
+title: Notification Listener and SMS Receiver in Same Package
+id: takopii-dual-otp-capture-001
+status: experimental
+description: Detects app with both NLS and SMS receiver actively processing in same time window
+logsource:
+    product: android
+    category: notification
+detection:
+    nls_read:
+        api_call: 'NotificationListenerService.onNotificationPosted'
+    sms_receive:
+        api_call: 'BroadcastReceiver.onReceive'
+        intent_action: 'android.provider.Telephony.SMS_RECEIVED'
+    same_package: true
+    timeframe: 600s
+    condition: nls_read and sms_receive
+level: critical
+tags:
+    - attack.collection
+    - attack.t1517
