@@ -1,6 +1,6 @@
 # Takopii Specimens
 
-> **4 Android banker-malware specimens. 0/75 VirusTotal. 17 real-world family techniques. 8,300+ lines of red/blue/purple analysis.**
+> **4 Android banker-malware specimens. 0/75 VirusTotal. 17 real-world family techniques. 10,400+ lines of red/blue/purple analysis.**
 
 Production-grade banker architectures with lab-safety constraints. Each builds independently with distinct camouflage identity. Techniques sourced from 17 documented wild banker families (Anatsa, SharkBot, Klopatra, Mirax, Vespertine, Drelock, Apex, RatOn, Perseus, FluBot, Herodotus, Crocodilus, Brokewell, FakeCall, TrickMo, ToxicPanda, Cerberus).
 
@@ -9,7 +9,7 @@ Production-grade banker architectures with lab-safety constraints. Each builds i
 │  4/4 APKs    →  0/75 VirusTotal (confirmed 2026-05-14)             │
 │  187 .kt     →  6.9 MB total APK across 4 specimens               │
 │  42 modules  →  overlay-banker alone: techniques from 17 families  │
-│  8,352 lines →  RED (3,418) + BLUE (4,122) + VT Research (812)    │
+│  10,431 lines →  RED (4,025) + BLUE (5,457) + VT Research (949)    │
 └──────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -54,13 +54,13 @@ Every technique below is implemented as working code in at least one specimen, s
 
 ---
 
-## Documentation Suite (8,352 lines)
+## Documentation Suite (10,431 lines)
 
 | Document | Lines | Audience | Content |
 |---|---|---|---|
-| [`REDTEAM-ANALYSIS.md`](../docs/REDTEAM-ANALYSIS.md) | 3,418 | Red Team | Kill chains, annotated source excerpts for all 58 source files, evasion architecture, C2 protocols |
-| [`BLUETEAM-DETECTION.md`](../docs/BLUETEAM-DETECTION.md) | 4,122 | Blue Team | IOCs, 24 YARA rules, 34 Sigma rules, 37 Frida hooks, network signatures, forensic commands |
-| [`VT-EVASION-RESEARCH.md`](../docs/VT-EVASION-RESEARCH.md) | 812 | Purple Team | 11-round ML classifier defeat, build-artifact topology theory, per-specimen evasion analysis |
+| [`REDTEAM-ANALYSIS.md`](../docs/REDTEAM-ANALYSIS.md) | 4,025 | Red Team | Kill chains, annotated source excerpts for all 58 source files, evasion architecture, C2 protocols |
+| [`BLUETEAM-DETECTION.md`](../docs/BLUETEAM-DETECTION.md) | 5,457 | Blue Team | IOCs, 40 YARA + 51 Sigma + 16 Frida monitors, network signatures, forensic commands |
+| [`VT-EVASION-RESEARCH.md`](../docs/VT-EVASION-RESEARCH.md) | 949 | Purple Team | 11-round ML classifier defeat, build-artifact topology theory, per-specimen evasion analysis |
 
 ---
 
@@ -430,9 +430,9 @@ sha256sum */app/build/outputs/apk/release/app-release.apk
 adb install sms-stealer/app/build/outputs/apk/release/app-release.apk
 
 # Read the analysis
-cat REDTEAM-ANALYSIS.md    # red team: 3,418 lines
-cat BLUETEAM-DETECTION.md  # blue team: 4,122 lines
-cat VT-EVASION-RESEARCH.md # purple team: 812 lines
+cat REDTEAM-ANALYSIS.md    # red team: 4,025 lines
+cat BLUETEAM-DETECTION.md  # blue team: 5,457 lines
+cat VT-EVASION-RESEARCH.md # purple team: 949 lines
 ```
 
 Or download pre-built APKs from [Releases](../../releases).
@@ -441,7 +441,7 @@ Or download pre-built APKs from [Releases](../../releases).
 
 ## Why This Matters
 
-**For detection engineers:** 75 AV engines scored 0 on specimens implementing ATS automated fraud, behavior mimicry, DGA, NFC relay, residential proxy, and 20+ other banker techniques. The `BLUETEAM-DETECTION.md` provides 95 detection artifacts (YARA + Sigma + Frida) targeting behavioral invariants that survive evasion — the layer VT's ML classifiers don't reach.
+**For detection engineers:** 75 AV engines scored 0 on specimens implementing ATS automated fraud, behavior mimicry, DGA, NFC relay, residential proxy, and 20+ other banker techniques. The `BLUETEAM-DETECTION.md` provides 107 detection artifacts (YARA + Sigma + Frida) targeting behavioral invariants that survive evasion — the layer VT's ML classifiers don't reach.
 
 **For red teamers:** The `VT-EVASION-RESEARCH.md` documents how ML static classifiers (BitDefenderFalx) operate on build-artifact topology, not application semantics. OkHttp bytecode + aggressive R8 + themed obfuscation dictionary = ML cluster. Remove all three = invisible. 11 rounds of source-level changes (renaming, restructuring, camouflage classes) had zero effect.
 
@@ -466,9 +466,9 @@ The safety constraints (loopback C2, lab gates, own-package filters) are **code-
 
 ## References
 
-- [`REDTEAM-ANALYSIS.md`](../docs/REDTEAM-ANALYSIS.md) — offensive analysis with annotated source excerpts (3,418 lines)
-- [`BLUETEAM-DETECTION.md`](../docs/BLUETEAM-DETECTION.md) — detection engineering: 24 YARA + 34 Sigma + 37 Frida (4,122 lines)
-- [`VT-EVASION-RESEARCH.md`](../docs/VT-EVASION-RESEARCH.md) — 11-round ML evasion research + build-artifact topology theory (812 lines)
+- [`REDTEAM-ANALYSIS.md`](../docs/REDTEAM-ANALYSIS.md) — offensive analysis with annotated source excerpts (4,025 lines)
+- [`BLUETEAM-DETECTION.md`](../docs/BLUETEAM-DETECTION.md) — detection engineering: 40 YARA + 51 Sigma + 16 Frida (5,457 lines)
+- [`VT-EVASION-RESEARCH.md`](../docs/VT-EVASION-RESEARCH.md) — 11-round ML evasion research + build-artifact topology theory (949 lines)
 - `ANALYSIS.md` (full curriculum — see main Takopii repo) — hub narrative (full curriculum)
 - [`SECURITY.md`](../SECURITY.md) — lab safety contract + operator responsibilities
 - `research/02-anatsa-threat-intel.md` — Anatsa kill chain reference

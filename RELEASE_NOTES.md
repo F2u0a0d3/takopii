@@ -8,7 +8,7 @@
 
 ## Summary
 
-First public release of the Takopii framework. Four Android banker malware specimens implementing techniques from 17 documented real-world families, paired with 95 detection rules and 8,300+ lines of red/blue/purple analysis documentation.
+First public release of the Takopii framework. Four Android banker malware specimens implementing techniques from 17 documented real-world families, paired with 107 detection rules and 10,400+ lines of red/blue/purple analysis documentation.
 
 Specimens score **0/75 on VirusTotal** -- all four confirmed clean across 75 AV engines (2026-05-14). Every attack ships with matching detection.
 
@@ -78,7 +78,7 @@ Four specimen APKs with distinct camouflage identities. Each builds from source 
 
 ## Detection Corpus
 
-95 detection rules across three formats. Every attack technique in the specimens has at least one matching detection rule.
+107 detection rules across three formats. Every attack technique in the specimens has at least one matching detection rule.
 
 ### YARA Rules (24) -- Static APK/DEX Scanning
 
@@ -152,9 +152,9 @@ frida -U -l detection/frida/master-monitor.js -f com.docreader.lite
 
 | Document | Lines | Audience | Content |
 |---|---|---|---|
-| `REDTEAM-ANALYSIS.md` | 3,418 | Offense | Kill chain architecture for all 4 specimens, annotated source walkthrough for 187 .kt files, evasion layer design, C2 protocol documentation, technique-to-family attribution |
-| `BLUETEAM-DETECTION.md` | 4,122 | Defense | IOC catalog, all 95 detection rules with rationale and false-positive analysis, network signatures (JA3/JA4, DGA precomputation), forensic commands, MobSF integration |
-| `VT-EVASION-RESEARCH.md` | 812 | Research | 11-round VirusTotal classifier defeat journal, build-artifact topology theory, methodology for maintaining 0/75 across source-level changes |
+| `REDTEAM-ANALYSIS.md` | 4,025 | Offense | Kill chain architecture for all 4 specimens, annotated source walkthrough for 187 .kt files, evasion layer design, C2 protocol documentation, technique-to-family attribution |
+| `BLUETEAM-DETECTION.md` | 5,457 | Defense | IOC catalog, all 107 detection rules with rationale and false-positive analysis, network signatures (JA3/JA4, DGA precomputation), forensic commands, MobSF integration |
+| `VT-EVASION-RESEARCH.md` | 949 | Research | 11-round VirusTotal classifier defeat journal, build-artifact topology theory, methodology for maintaining 0/75 across source-level changes |
 
 ---
 

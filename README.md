@@ -10,7 +10,7 @@
 [![Families](https://img.shields.io/badge/Families-17%20real--world-red?style=for-the-badge)](specimens/)
 [![YARA](https://img.shields.io/badge/YARA-24%20rules-orange?style=for-the-badge)](detection/yara/)
 [![Sigma](https://img.shields.io/badge/Sigma-34%20rules-yellow?style=for-the-badge)](detection/sigma/)
-[![Frida](https://img.shields.io/badge/Frida-48%20hooks-purple?style=for-the-badge)](detection/frida/)
+[![Frida](https://img.shields.io/badge/Frida-13%20monitors-purple?style=for-the-badge)](detection/frida/)
 [![License](https://img.shields.io/badge/License-Research-lightgrey?style=for-the-badge)](SECURITY.md)
 
 ---
@@ -122,7 +122,7 @@ Every technique below is **implemented as working code**, sourced from public th
 
 ## Detection Corpus
 
-Every attack ships with matching detection. 95 rules total:
+Every attack ships with matching detection. 107 rules total:
 
 ```
 detection/
@@ -187,9 +187,9 @@ frida -U -l detection/frida/master-monitor.js -f com.suspect.package
 
 | Document | Lines | Audience | What You Get |
 |---|---|---|---|
-| 📕 [REDTEAM-ANALYSIS.md](docs/REDTEAM-ANALYSIS.md) | 3,418 | Offense | Kill chains, annotated source for all 187 .kt files, evasion architecture, C2 protocols |
-| 📘 [BLUETEAM-DETECTION.md](docs/BLUETEAM-DETECTION.md) | 4,122 | Defense | IOCs, 95 detection rules (YARA + Sigma + Frida), network signatures, forensic commands |
-| 📗 [VT-EVASION-RESEARCH.md](docs/VT-EVASION-RESEARCH.md) | 812 | Research | 11-round ML classifier defeat journal, build-artifact topology theory |
+| 📕 [REDTEAM-ANALYSIS.md](docs/REDTEAM-ANALYSIS.md) | 4,025 | Offense | Kill chains, annotated source for all 187 .kt files, evasion architecture, C2 protocols |
+| 📘 [BLUETEAM-DETECTION.md](docs/BLUETEAM-DETECTION.md) | 5,457 | Defense | IOCs, 107 detection rules (YARA + Sigma + Frida), network signatures, forensic commands |
+| 📗 [VT-EVASION-RESEARCH.md](docs/VT-EVASION-RESEARCH.md) | 949 | Research | 11-round ML classifier defeat journal, build-artifact topology theory |
 
 ---
 
@@ -242,7 +242,7 @@ frida -U -l detection/frida/master-monitor.js -f com.docreader.lite
 
 ## Who This Is For
 
-**Detection Engineers** — 75 AV engines scored 0 on specimens implementing ATS, screen streaming, call hijacking, TOTP capture, NFC relay, residential proxy, and 40+ other techniques. The 95 detection rules target behavioral invariants that survive evasion.
+**Detection Engineers** — 75 AV engines scored 0 on specimens implementing ATS, screen streaming, call hijacking, TOTP capture, NFC relay, residential proxy, and 40+ other techniques. The 107 detection rules target behavioral invariants that survive evasion.
 
 **Red Teamers** — The VT evasion research documents how ML classifiers operate on build-artifact topology, not application semantics. 11 rounds of source-level changes had zero effect on VT score.
 
@@ -276,9 +276,9 @@ takopii/
 │   ├── stage-1-evasion/          42 .kt — SkyWeather Forecast
 │   └── stage-2-payload/          1 .java — Recon module DEX
 ├── docs/                         8,352 lines of analysis
-│   ├── REDTEAM-ANALYSIS.md       3,418 lines — offensive analysis
-│   ├── BLUETEAM-DETECTION.md     4,122 lines — detection engineering
-│   └── VT-EVASION-RESEARCH.md    812 lines — ML evasion research
+│   ├── REDTEAM-ANALYSIS.md       4,025 lines — offensive analysis
+│   ├── BLUETEAM-DETECTION.md     5,457 lines — detection engineering
+│   └── VT-EVASION-RESEARCH.md    949 lines — ML evasion research
 ├── detection/                    95 standalone detection rules
 │   ├── yara/                     24 YARA rules (9 files + master)
 │   ├── sigma/                    34 Sigma rules (11 files + master)
@@ -317,7 +317,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md). Priority areas:
 
 If this project helps your research, detection engineering, or education — star it. The detection rules alone are worth the click.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=user/takopii&type=Date)](https://star-history.com/#user/takopii&Date)
+[![Star History Chart](https://api.star-history.com/svg?repos=F2u0a0d3/takopii&type=Date)](https://star-history.com/#F2u0a0d3/takopii&Date)
 
 ---
 

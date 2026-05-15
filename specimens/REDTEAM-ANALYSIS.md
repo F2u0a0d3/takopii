@@ -3845,7 +3845,7 @@ Full methodology: [`VT-EVASION-RESEARCH.md`](VT-EVASION-RESEARCH.md)
 
 ## Detection Rule Firing Matrix
 
-Which of the 95 detection rules (24 YARA + 34 Sigma + 37 Frida) fire on each specimen. Validates that every specimen trips multiple detection layers.
+Which of the 107 detection rules (40 YARA + 51 Sigma + 16 Frida) fire on each specimen. Validates that every specimen trips multiple detection layers.
 
 ### YARA Rules (24 total)
 
